@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -e
 
 VERSION="0.0.1"
 TMP=/tmp
@@ -110,7 +110,7 @@ deploy() {
   CONTAINER_NAME="doploy/$NAME"
 
   echo "Getting running containers"
-  running=$(sudo docker ps | grep $NAME: | awk '{ print $1 }')
+  running=$(sudo docker ps | grep $CONTAINER_NAME: | awk '{ print $1 }')
 
   image_id=$(sudo docker images | grep ^$CONTAINER_NAME\\s*$commit | awk '{ print $3 }')
 
