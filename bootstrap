@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mkdir /tmp/doploy
+cd /tmp/doploy
+curl -L# https://github.com/firstandthird/doploy/archive/master.tar.gz | tar zx --strip 1
+make install
+rm -rf /tmp/doploy
