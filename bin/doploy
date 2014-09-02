@@ -111,7 +111,7 @@ deploy() {
   echo "Getting running containers"
   running=$(sudo docker ps | grep $NAME: | awk '{ print $1 }')
 
-  image_id=$(docker images | grep ^$CONTAINER_NAME\\s*$commit | awk '{ print $3 }')
+  image_id=$(sudo docker images | grep ^$CONTAINER_NAME\\s*$commit | awk '{ print $3 }')
 
   if [[ -z "$image_id" ]]; then
     echo "Building docker image"
