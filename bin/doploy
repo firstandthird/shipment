@@ -171,7 +171,7 @@ version() {
 }
 
 update() {
-  log "updating doploy(1)"
+  echo "updating doploy(1)"
   rm -fr /tmp/doploy
   git clone git://github.com/firstandthird/doploy.git \
     --depth 0 \
@@ -179,7 +179,7 @@ update() {
     &> /tmp/doploy \
   && cd /tmp/doploy \
   && make install \
-  && log "updated $VERSION -> `./bin/doploy --version`"
+  && echo "updated $VERSION -> `./bin/doploy --version`"
 }
 
 CMD=$1
