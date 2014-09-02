@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 VERSION="0.0.1"
 TMP=/tmp
