@@ -233,7 +233,7 @@ version() {
 }
 
 update() {
-  echo "updating shipment(1)"
+  log "updating shipment(1)"
   rm -fr /tmp/shipment
   git clone -q --depth 1 git@github.com:firstandthird/shipment.git /tmp/shipment
   cd /tmp/shipment
