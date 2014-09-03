@@ -100,7 +100,7 @@ hipache_add() {
   local count=$(redis "llen $redis_key")
 
   if [[ "$count" == "0" ]]; then
-    local "Adding $NAME to hipache"
+    log "Adding $NAME to hipache"
     redis "rpush $redis_key $NAME" > /dev/null
   fi
 
