@@ -15,6 +15,8 @@ ENVVAR=${SHIPMENT_ENV:-}
 PORT=${SHIPMENT_PORT:-5000}
 LINK=${SHIPMENT_LINK:-}
 CONTAINER_NAME="shipment/$NAME"
+ATTEMPTS=0
+MAXATTEMPS=10
 
 usage() {
   cat <<-EOF
@@ -117,6 +119,7 @@ hipache_remove() {
 }
 
 update_repo() {
+  LOCKFILE=$TMP/$NAME/shipment.lock
 
   cd $TMP
   if [[ ! -d $NAME ]]; then
@@ -124,6 +127,17 @@ update_repo() {
     git clone -q $REPO $NAME
   fi
   cd $NAME
+
+  while [ -f "$LOCKFILE" ]; do
+    log "Lock file exists, waiting for previous build to finish"
+    sleep 60
+    ATTEMPTS=$(($TEST+1))
+    if [[ "$MAXATTEMPTS" == "$ATTEMPTS" ]]; then
+      echo "Reached max attemps, exiting"
+      exit 0
+    fi
+  done
+  touch $LOCKFILE
   git checkout -q $BRANCH
   log "Fetching latest code on $BRANCH"
   git pull -q $ORIGIN $BRANCH
@@ -206,6 +220,7 @@ deploy() {
 
   kill_running
 
+  rm $LOCKFILE
 }
 
 install() {
