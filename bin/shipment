@@ -168,7 +168,7 @@ run_container() {
   [[ -n $ENVVAR ]] && env_arg="-e $ENVVAR"
 
   CONTAINER_ID=$(sudo docker run -d -p $PORT -e PORT=$PORT $link_arg $env_arg $CONTAINER_NAME:$COMMIT)
-  sleep 1
+  sleep 5
 }
 
 kill_running() {
@@ -212,11 +212,9 @@ deploy() {
 
   hipache_add
 
-  sleep 2
+  sleep 5
 
   hipache_remove
-
-  sleep 2
 
   kill_running
 
