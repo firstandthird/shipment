@@ -235,12 +235,10 @@ version() {
 update() {
   echo "updating shipment(1)"
   rm -fr /tmp/shipment
-  git clone git://github.com:firstandthird/shipment.git \
-    --depth 1 \
-    /tmp/shipment \
-  && cd /tmp/shipment \
-  && make install \
-  && echo "updated $VERSION -> $(./bin/shipment --version)"
+  git clone git://github.com:firstandthird/shipment.git --depth 1 /tmp/shipment
+  cd /tmp/shipment
+  make install
+  log "updated $VERSION -> $(shipment --version)"
 }
 
 CMD=$1
