@@ -1,9 +1,9 @@
 PREFIX ?= /usr/local
 
-install: bin/doploy
+install: bin/shipment
 	@cp -p $< $(PREFIX)/$<
 
 uninstall:
-	rm -f $(PREFIX)/bin/doploy
+	rm -f $(PREFIX)/bin/shipment
 
 .PHONY: install uninstall

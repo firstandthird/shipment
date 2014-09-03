@@ -3,8 +3,8 @@
 apt-get update
 apt-get install -y git make curl
 
-mkdir /tmp/doploy
-cd /tmp/doploy
-curl -L# https://github.com/firstandthird/doploy/archive/master.tar.gz | tar zx --strip 1
+mkdir /tmp/shipment
+cd /tmp/shipment
+curl -L# https://github.com/firstandthird/shipment/archive/master.tar.gz | tar zx --strip 1
 make install
-rm -rf /tmp/doploy
+rm -rf /tmp/shipment

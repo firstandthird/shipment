@@ -6,4 +6,4 @@ curl -sSL https://get.docker.io/ubuntu/ | sudo sh
 sudo docker pull hipache
 sudo docker run -d -p 80:80 --name hipache hipache
 
-sudo ln -s /vagrant/bin/doploy /usr/local/bin/doploy
+sudo ln -s /vagrant/bin/shipment /usr/local/bin/shipment
