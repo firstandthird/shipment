@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Get ssh key"
+  exit
+fi
+
+if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
+  ssh-keygen -q -f ~/.ssh/id_rsa -P ""
+fi
+
+cat ~/.ssh/id_rsa.pub

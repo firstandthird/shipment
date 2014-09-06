@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+HOST=$1
+CONTAINER_ID=$2
+PORT=${3:-5000}
+
+if [ "$1" == "_description" ]; then
+  echo "Unbind container from host"
+  exit
+fi
+
+usage_unbind() {
+  cat <<-EOF
+
+  Usage: shipment unbind [HOST] [CONTAINER_ID] [PORT: default 5000]
+
+EOF
+}
+
+if [ -z "$HOST" ] || [ -z "$CONTAINER_ID" ]; then
+  usage_unbind
+  exit 1
+fi
+
+container_port=$(sudo docker port $CONTAINER_ID $PORT | sed 's/0.0.0.0://')
+
+redis_key="frontend:$HOST"
+url="http://$BRIDGE_IP:$container_port"
+
+log "Unbinding $url from $HOST"
+redis "lrem $redis_key 0 $url" > /dev/null

@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Connect to redis"
+  exit
+fi
+
+cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
+sudo docker run -it --link hipache:redis --rm hipache sh -c "$cmd"

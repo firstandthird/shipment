@@ -2,21 +2,9 @@
 set -e
 
 VERSION="0.0.3"
-TMP=/tmp
-ORIGIN=origin
 BRIDGE_IP=172.17.42.1
 
-#GLOBAL VARS
-NAME=${SHIPMENT_NAME:-}
-REPO=${SHIPMENT_REPO:-}
-HOST=${SHIPMENT_HOST:-}
-BRANCH=${SHIPMENT_BRANCH:-master}
-ENVVAR=${SHIPMENT_ENV:-}
-PORT=${SHIPMENT_PORT:-5000}
-LINK=${SHIPMENT_LINK:-}
-CONTAINER_NAME="shipment/$NAME"
-ATTEMPTS=0
-MAXATTEMPS=10
+DIR=$(dirname $0)
 
 usage() {
   cat <<-EOF
@@ -25,36 +13,19 @@ usage() {
 
   Commands:
 
-    key                  get deploy key
-    deploy               push app
-    urls                 list urls handled by router
-    running              list running docker containers
-    redis                connect to redis cli
-    install              install required dependencies
-
 EOF
 
+for f in $DIR/shipment-*; do
+  cmd=${f:24}
+  printf "    %-20s %-50s\n" "$cmd" "$($f _description)"
+done
+echo
+
+exit
 }
 
-usage_deploy() {
-  cat <<-EOF
-
-  Usage: shipment deploy [options]
-
-  Deploy options:
-
-    Required:
-    -n <name>            name of app [some-cool-app]
-    -r <repo>            repo [git@github.com:firstandthird/app]
-    -h <url>             host url [app.com]
-
-    Optional:
-    -b <branch>          branch [default: master]
-    -e <env>             env vars [NODE_ENV=production]
-    -p <port>            port [default: 5000]
-    -l <link:link>       link to other container [mongo:mongo]
-
-EOF
+version() {
+  echo $VERSION
 }
 
 log() {
@@ -75,214 +46,30 @@ check_sudo() {
   fi
 }
 
-get_key() {
-  if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
-    ssh-keygen -q -f ~/.ssh/id_rsa -P ""
-  fi
-
-  cat ~/.ssh/id_rsa.pub
-}
-
 redis() {
   cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
   sudo docker run --link hipache:redis --rm hipache sh -c "$cmd"
 }
 
-redis_cli() {
-  cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
-  sudo docker run -it --link hipache:redis --rm hipache sh -c "$cmd"
-}
-
-hipache_add() {
-  local port=$(sudo docker port $CONTAINER_ID $PORT | sed 's/0.0.0.0://')
-
-  local redis_key="frontend:$HOST"
-  local count=$(redis "llen $redis_key")
-
-  if [[ "$count" == "0" ]]; then
-    log "Adding $NAME to hipache"
-    redis "rpush $redis_key $NAME" > /dev/null
-  fi
-
-  log "Adding new container to router"
-  redis "rpush $redis_key http://$BRIDGE_IP:$port" > /dev/null
-}
-
-hipache_remove() {
-  local redis_key="frontend:$HOST"
-  for i in ${RUNNING[@]}; do
-    local port=$(sudo docker port $i $PORT | sed 's/0.0.0.0://')
-    local url="http://$BRIDGE_IP:$port"
-    log "Removing $url from router"
-    redis "lrem $redis_key 0 $url" > /dev/null
-  done
-}
-
-update_repo() {
-  LOCKFILE=$TMP/$NAME/shipment.lock
-
-  cd $TMP
-  if [[ ! -d $NAME ]]; then
-    log "Cloning $REPO"
-    git clone -q $REPO $NAME
-  fi
-  cd $NAME
-
-  while [ -f "$LOCKFILE" ]; do
-    log "Lock file exists, waiting for previous build to finish"
-    sleep 60
-    ATTEMPTS=$(($TEST+1))
-    if [[ "$MAXATTEMPTS" == "$ATTEMPTS" ]]; then
-      echo "Reached max attemps, exiting"
-      exit 0
-    fi
-  done
-  touch $LOCKFILE
-  git checkout -q $BRANCH
-  log "Fetching latest code on $BRANCH"
-  git pull -q $ORIGIN $BRANCH
-
-  COMMIT=$(git log --pretty=format:'%h' -n 1)
-}
-
-get_running() {
-  log "Getting running containers"
-  RUNNING=$(sudo docker ps | grep $CONTAINER_NAME: | awk '{ print $1 }')
-}
-
-build_container() {
-
-  local image_id=$(sudo docker images | grep ^$CONTAINER_NAME\\s*$COMMIT | awk '{ print $3 }')
-
-  if [[ -z "$image_id" ]]; then
-    log "Building docker image"
-    sudo docker build -t $CONTAINER_NAME:$COMMIT .
-  else
-    log "Skipping build because same as last build"
-  fi
-}
-
-run_container() {
-  log "Running new container"
-  [[ -n $LINK ]] && link_arg="--link $LINK"
-  [[ -n $ENVVAR ]] && env_arg="-e $ENVVAR"
-
-  CONTAINER_ID=$(sudo docker run -d -p $PORT -e PORT=$PORT $link_arg $env_arg $CONTAINER_NAME:$COMMIT)
-  sleep 5
-}
-
-kill_running() {
-  for i in ${RUNNING[@]}; do
-    log "Killing running docker containers"
-    sudo docker stop $i > /dev/null
-    sleep 1
-    sudo docker rm $i > /dev/null
-  done
-}
-
-deploy() {
-  #set global vars
-  while getopts ":n:r:h:b:e:p:l:" OPTION "$@"; do
-    case $OPTION in
-      n) NAME=$OPTARG;;
-      r) REPO=$OPTARG;;
-      h) HOST=$OPTARG;;
-      b) BRANCH=$OPTARG;;
-      e) ENVVAR=$OPTARG;;
-      p) PORT=$OPTARG;;
-      l) LINK=$OPTARG;;
-    esac
-  done
-
-  CONTAINER_NAME="shipment/$NAME"
-
-  # check for required args
-  if [[ -z $NAME ]] || [[ -z $REPO ]] || [[ -z $HOST ]]; then
-    usage_deploy
-    exit 1
-  fi
-
-  update_repo
-
-  get_running
-
-  build_container
-
-  run_container
-
-  hipache_add
-
-  sleep 5
-
-  hipache_remove
-
-  kill_running
-
-  rm $LOCKFILE
-}
-
-install() {
-  check_sudo
-  curl -sSL https://get.docker.io/ubuntu/ | sh
-  docker pull hipache
-  docker run -d -p 80:80 --name hipache hipache
-}
-
-version() {
-  echo $VERSION
-}
-
-update() {
-  log "updating shipment(1)"
-  rm -fr /tmp/shipment
-  git clone -q --depth 1 git@github.com:firstandthird/shipment.git /tmp/shipment
-  cd /tmp/shipment
-  make install
-  log "updated $VERSION -> $(shipment --version)"
-}
+if [ "$#" == 0 ]; then
+  usage
+fi
 
 CMD=$1
 shift
 case $CMD in
-  key)
-    get_key
-    exit
-    ;;
-  deploy)
-    deploy $@
-    exit
-    ;;
-  redis)
-    redis_cli
-    exit
-    ;;
-  urls)
-    hosts=$(redis keys frontend*)
-    for host in ${hosts[@]}; do
-      echo $host
-      redis lrange $host 0 -1
-      echo
-    done
-    exit
-    ;;
-  running)
-    sudo docker ps
-    exit
-    ;;
-  update)
-    update
-    exit
-    ;;
-  install)
-    install
-    exit
-    ;;
   --version)
     version
     exit
     ;;
   *)
-    usage
-    exit
+    exec="$DIR/shipment-$CMD"
+    if [ -f "$exec" ]; then
+      . $exec $@
+    else
+      log "command doesn't exist"
+      usage
+    fi
     ;;
 esac
+

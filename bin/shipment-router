@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Manage router"
+  exit
+fi
+
+CMD=$1
+shift
+case $CMD in
+  start)
+    sudo docker run -d -p 80:80 --name hipache hipache
+    exit
+    ;;
+esac
+

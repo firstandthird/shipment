@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Update shipment to latest version"
+  exit
+fi
+
+log "updating shipment(1)"
+rm -fr /tmp/shipment
+git clone -q --depth 1 git@github.com:firstandthird/shipment.git /tmp/shipment
+cd /tmp/shipment
+make install
+log "updated $VERSION -> $(shipment --version)"

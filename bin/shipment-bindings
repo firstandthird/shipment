@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+
+if [ "$1" == "_description" ]; then
+  echo "List all bindings"
+  exit
+fi
+
+hosts=$(redis keys frontend*)
+for host in ${hosts[@]}; do
+  echo $host
+  redis lrange $host 1 -1
+  echo
+done

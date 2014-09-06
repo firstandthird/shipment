@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+HOST=$1
+CONTAINER_ID=$2
+PORT=${3:-5000}
+
+if [ "$1" == "_description" ]; then
+  echo "Bind host to container"
+  exit
+fi
+
+usage_bind() {
+  cat <<-EOF
+
+  Usage: shipment bind [HOST] [CONTAINER_ID] [PORT: default 5000]
+
+EOF
+}
+
+if [ -z "$HOST" ] || [ -z "$CONTAINER_ID" ]; then
+  usage_bind
+  exit 1
+fi
+
+container_port=$(sudo docker port $CONTAINER_ID $PORT | sed 's/0.0.0.0://')
+
+redis_key="frontend:$HOST"
+count=$(redis "llen $redis_key")
+
+if [[ "$count" == "0" ]]; then
+  redis "rpush $redis_key app" > /dev/null
+fi
+
+url="http://$BRIDGE_IP:$container_port"
+
+log "Binding $url to $HOST"
+redis "rpush $redis_key $url" > /dev/null

@@ -1,0 +1,142 @@
+#!/bin/bash
+set -e
+
+
+TMP=/tmp
+ORIGIN=origin
+BRIDGE_IP=172.17.42.1
+
+#GLOBAL VARS
+NAME=${SHIPMENT_NAME:-}
+REPO=${SHIPMENT_REPO:-}
+HOST=${SHIPMENT_HOST:-}
+BRANCH=${SHIPMENT_BRANCH:-master}
+ENVVAR=${SHIPMENT_ENV:-}
+PORT=${SHIPMENT_PORT:-5000}
+LINK=${SHIPMENT_LINK:-}
+CONTAINER_NAME="shipment/$NAME"
+ATTEMPTS=0
+MAXATTEMPS=10
+
+if [ "$1" == "_description" ]; then
+  echo "Deploy app"
+  exit
+fi
+
+usage_deploy() {
+  cat <<-EOF
+
+  Usage: shipment deploy [options]
+
+  Deploy options:
+
+    Required:
+    -n <name>            name of app [some-cool-app]
+    -r <repo>            repo [git@github.com:firstandthird/app]
+    -h <url>             host url [app.com]
+
+    Optional:
+    -b <branch>          branch [default: master]
+    -e <env>             env vars [NODE_ENV=production]
+    -p <port>            port [default: 5000]
+    -l <link:link>       link to other container [mongo:mongo]
+
+EOF
+}
+if [ "$#" == 0 ]; then
+  usage_deploy
+  exit
+fi
+
+update_repo() {
+  LOCKFILE=$TMP/$NAME/shipment.lock
+
+  cd $TMP
+  if [[ ! -d $NAME ]]; then
+    log "Cloning $REPO"
+    git clone -q $REPO $NAME
+  fi
+  cd $NAME
+
+  while [ -f "$LOCKFILE" ]; do
+    log "Lock file exists, waiting for previous build to finish"
+    sleep 60
+    ATTEMPTS=$(($TEST+1))
+    if [[ "$MAXATTEMPTS" == "$ATTEMPTS" ]]; then
+      echo "Reached max attemps, exiting"
+      exit 0
+    fi
+  done
+  touch $LOCKFILE
+  git checkout -q $BRANCH
+  log "Fetching latest code on $BRANCH"
+  git pull -q $ORIGIN $BRANCH
+
+  COMMIT=$(git log --pretty=format:'%h' -n 1)
+}
+
+build_container() {
+
+  local image_id=$(sudo docker images | grep ^$CONTAINER_NAME\\s*$COMMIT | awk '{ print $3 }')
+
+  if [[ -z "$image_id" ]]; then
+    log "Building docker image"
+    sudo docker build -t $CONTAINER_NAME:$COMMIT .
+  else
+    log "Skipping build because same as last build"
+  fi
+}
+
+run_container() {
+  log "Running new container"
+  [[ -n $LINK ]] && link_arg="--link $LINK"
+  [[ -n $ENVVAR ]] && env_arg="-e $ENVVAR"
+
+  CONTAINER_ID=$(sudo docker run -d -p $PORT -e PORT=$PORT $link_arg $env_arg $CONTAINER_NAME:$COMMIT)
+  sleep 5
+}
+
+#set global vars
+while getopts ":n:r:h:b:e:p:l:" OPTION "$@"; do
+  case $OPTION in
+    n) NAME=$OPTARG;;
+    r) REPO=$OPTARG;;
+    h) HOST=$OPTARG;;
+    b) BRANCH=$OPTARG;;
+    e) ENVVAR=$OPTARG;;
+    p) PORT=$OPTARG;;
+    l) LINK=$OPTARG;;
+  esac
+done
+
+CONTAINER_NAME="shipment/$NAME"
+
+# check for required args
+if [[ -z $NAME ]] || [[ -z $REPO ]] || [[ -z $HOST ]]; then
+  usage_deploy
+  exit 1
+fi
+
+update_repo
+
+log "Getting running containers"
+RUNNING=$(shipment running -n $NAME -i)
+
+build_container
+
+run_container
+
+shipment bind $HOST $CONTAINER_ID
+
+sleep 5
+
+for i in ${RUNNING[@]}; do
+  shipment unbind $HOST $i
+  log "Killing running docker containers"
+  sudo docker stop $i > /dev/null
+  sleep 1
+  sudo docker rm $i > /dev/null
+done
+
+
+rm $LOCKFILE
