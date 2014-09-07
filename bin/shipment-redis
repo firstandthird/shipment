@@ -7,4 +7,4 @@ if [ "$1" == "_description" ]; then
 fi
 
 cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
-sudo docker run -it --link hipache:redis --rm hipache sh -c "$cmd"
+sudo docker run -it --link shipment-load-balancer:redis --rm hipache sh -c "$cmd"
