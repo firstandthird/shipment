@@ -1,4 +1,18 @@
 
+0.0.4 / 2014-09-07 
+==================
+
+  * updated makefile
+  * update load balancer container name
+  * hipache config
+  * updated setup script to copy hipache config
+  * updated load-balancer command
+  * added descriptions to run and stop
+  * added run and stop commands
+  * fixed running
+  * refactored into separate commands
+  * use log on update command
+
 0.0.3 / 2014-09-03 
 ==================
 
