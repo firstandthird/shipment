@@ -4,6 +4,12 @@ set -e
 IDONLY=0
 PORT=${SHIPMENT_PORT:-5000}
 
+if [ "$1" == "_description" ]; then
+  echo "Run an app"
+  exit
+fi
+
+
 while getopts "in:p:d:t:" OPTION "$@"; do
   case $OPTION in
     n) NAME=$OPTARG;;

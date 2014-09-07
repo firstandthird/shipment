@@ -3,6 +3,11 @@ set -e
 
 CONTAINER_ID=$1
 
+if [ "$1" == "_description" ]; then
+  echo "Stop app"
+  exit
+fi
+
 sudo docker stop $CONTAINER_ID > /dev/null
 sleep 1
 sudo docker rm $CONTAINER_ID > /dev/null
