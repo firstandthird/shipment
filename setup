@@ -8,3 +8,5 @@ sudo docker run -d -p 80:80 --name hipache hipache
 
 sudo rm -r /usr/local/bin
 sudo ln -s /vagrant/bin /usr/local/bin
+sudo mkdir -p /etc/shipment
+sudo cp /vagrant/etc/hipache.json /etc/shipment/config_dev.json
