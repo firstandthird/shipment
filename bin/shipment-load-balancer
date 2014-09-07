@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Manage load balancer"
+  exit
+fi
+
+CMD=$1
+shift
+case $CMD in
+  start)
+    shipment load-balancer stop
+    sudo docker run -d -p 80:80 -v /var/log/shipment:/var/log/supervisor -v /etc/shipment/:/usr/local/lib/node_modules/hipache/config/ --name shipment/load-balancer hipache
+    log "Load balancer started"
+    exit
+    ;;
+  stop)
+    ID=$(sudo docker ps | grep shipment/load-balancer | awk '{ print $1 }')
+    if [ -n "$ID" ]; then
+      log "Stopping load balancer"
+      shipment stop $ID
+    else
+      log "Load balancer not running"
+    fi
+    exit
+    ;;
+esac
+
