@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+CONTAINER_ID=$1
+
+sudo docker stop $CONTAINER_ID > /dev/null
+sleep 1
+sudo docker rm $CONTAINER_ID > /dev/null

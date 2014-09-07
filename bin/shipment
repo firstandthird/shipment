@@ -65,7 +65,7 @@ case $CMD in
   *)
     exec="$DIR/shipment-$CMD"
     if [ -f "$exec" ]; then
-      . $exec $@
+      . $exec "$@"
     else
       log "command doesn't exist"
       usage

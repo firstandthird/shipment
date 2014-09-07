@@ -87,15 +87,6 @@ build_container() {
   fi
 }
 
-run_container() {
-  log "Running new container"
-  [[ -n $LINK ]] && link_arg="--link $LINK"
-  [[ -n $ENVVAR ]] && env_arg="-e $ENVVAR"
-
-  CONTAINER_ID=$(sudo docker run -d -p $PORT -e PORT=$PORT $link_arg $env_arg $CONTAINER_NAME:$COMMIT)
-  sleep 5
-}
-
 #set global vars
 while getopts ":n:r:h:b:e:p:l:" OPTION "$@"; do
   case $OPTION in
@@ -103,9 +94,8 @@ while getopts ":n:r:h:b:e:p:l:" OPTION "$@"; do
     r) REPO=$OPTARG;;
     h) HOST=$OPTARG;;
     b) BRANCH=$OPTARG;;
-    e) ENVVAR=$OPTARG;;
     p) PORT=$OPTARG;;
-    l) LINK=$OPTARG;;
+    d) DOCKERARGS=$OPTARG;;
   esac
 done
 
@@ -124,18 +114,18 @@ RUNNING=$(shipment running -n $NAME -i)
 
 build_container
 
-run_container
+log "Running new container"
+CONTAINER_ID=$(shipment run -i -n $NAME -t $COMMIT -p $PORT -d "$DOCKERARGS")
+sleep 5
 
 shipment bind $HOST $CONTAINER_ID
 
 sleep 5
 
+log "Killing running docker containers"
 for i in ${RUNNING[@]}; do
   shipment unbind $HOST $i
-  log "Killing running docker containers"
-  sudo docker stop $i > /dev/null
-  sleep 1
-  sudo docker rm $i > /dev/null
+  shipment stop $i
 done
 
 
