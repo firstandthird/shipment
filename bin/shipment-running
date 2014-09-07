@@ -34,10 +34,9 @@ if [ "$HELP" == 1 ]; then
   exit
 fi
 
-results=$(sudo docker ps | grep shipment/$NAME)
-
 if [ "$IDS" == 0 ]; then
-  echo $results | awk 'BEGIN {printf("%-30s %-20s \n" ,"IMAGE", "CONTAINER ID")} { printf("%-30s %-20s \n", $2, $1)}'
+  printf "%-30s %-20s \n" "APP:TAG" "ID"
+  sudo docker ps | grep shipment/$NAME | awk '{ printf("%-30s %-20s \n", $2, $1) }'
 else
-  echo $results | awk '{ print $1 }'
+  sudo docker ps | grep shipment/$NAME | awk '{ print $1 }'
 fi
