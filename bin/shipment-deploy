@@ -88,7 +88,7 @@ build_container() {
 }
 
 #set global vars
-while getopts ":n:r:h:b:e:p:l:" OPTION "$@"; do
+while getopts ":n:r:h:b:d:p:" OPTION "$@"; do
   case $OPTION in
     n) NAME=$OPTARG;;
     r) REPO=$OPTARG;;
