@@ -34,5 +34,28 @@ case $CMD in
     sudo docker run -it --link shipment-load-balancer:redis --rm hipache sh -c "$cmd"
     exit
     ;;
+  restart)
+    log "Backing up redis"
+    hosts=$(redis "keys frontend*")
+    host_index=0
+    for host in ${hosts[@]}; do
+      bindings[$host_index]=$(redis lrange $host 1 -1)
+      host_index=$host_index+1
+    done
+    shipment load-balancer stop
+    shipment load-balancer start
+    sleep 5
+    log "Restoring redis"
+    host_index=0
+    for host in ${hosts[@]}; do
+      redis "rpush $host app"
+      for bind in ${bindings[$host_index][@]}; do
+        redis "rpush $host $bind"
+      done
+      host_index=$host_index+1
+    done
+    exit
+    ;;
+
 esac
 
