@@ -1,4 +1,13 @@
 
+0.1.0 / 2014-09-15 
+==================
+
+  * deploy - added scale argument to run multiple containers
+  * added load balancer restart command
+  * moved redis command inside load-balancer
+  * bind - check if valid container id before adding
+  * fixed dockerargs issue
+
 0.0.4 / 2014-09-07 
 ==================
 
