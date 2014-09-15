@@ -25,6 +25,11 @@ fi
 
 container_port=$(sudo docker port $CONTAINER_ID $PORT | sed 's/0.0.0.0://')
 
+if [ -z $container_port ]; then
+  log "Invalid container id"
+  exit;
+fi
+
 redis_key="frontend:$HOST"
 count=$(redis "llen $redis_key")
 
