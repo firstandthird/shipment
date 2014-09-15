@@ -14,6 +14,7 @@ BRANCH=${SHIPMENT_BRANCH:-master}
 ENVVAR=${SHIPMENT_ENV:-}
 PORT=${SHIPMENT_PORT:-5000}
 LINK=${SHIPMENT_LINK:-}
+SCALE=${SHIPMENT_SCALE:-1}
 CONTAINER_NAME="shipment/$NAME"
 ATTEMPTS=0
 MAXATTEMPS=10
@@ -40,6 +41,7 @@ usage_deploy() {
     -e <env>             env vars [NODE_ENV=production]
     -p <port>            port [default: 5000]
     -l <link:link>       link to other container [mongo:mongo]
+    -s <num>             number of containers to run [default: 1]
 
 EOF
 }
@@ -88,7 +90,7 @@ build_container() {
 }
 
 #set global vars
-while getopts ":n:r:h:b:d:p:" OPTION "$@"; do
+while getopts ":n:r:h:b:d:p:s:" OPTION "$@"; do
   case $OPTION in
     n) NAME=$OPTARG;;
     r) REPO=$OPTARG;;
@@ -96,10 +98,12 @@ while getopts ":n:r:h:b:d:p:" OPTION "$@"; do
     b) BRANCH=$OPTARG;;
     p) PORT=$OPTARG;;
     d) DOCKERARGS=$OPTARG;;
+    s) SCALE=$OPTARG;;
   esac
 done
 
 CONTAINER_NAME="shipment/$NAME"
+
 
 # check for required args
 if [[ -z $NAME ]] || [[ -z $REPO ]] || [[ -z $HOST ]]; then
@@ -114,11 +118,13 @@ RUNNING=$(shipment running -n $NAME -i)
 
 build_container
 
-log "Running new container"
-CONTAINER_ID=$(shipment run -i -n $NAME -t $COMMIT -p $PORT -d "$DOCKERARGS")
-sleep 5
+log "Running $SCALE new container(s)"
 
-shipment bind $HOST $CONTAINER_ID
+for i in $(seq 1 $SCALE); do
+  CONTAINER_ID=$(shipment run -i -n $NAME -t $COMMIT -p $PORT -d "$DOCKERARGS")
+  sleep 1
+  shipment bind $HOST $CONTAINER_ID
+done
 
 sleep 5
 
