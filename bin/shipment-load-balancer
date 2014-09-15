@@ -29,5 +29,10 @@ case $CMD in
     fi
     exit
     ;;
+  redis)
+    cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
+    sudo docker run -it --link shipment-load-balancer:redis --rm hipache sh -c "$cmd"
+    exit
+    ;;
 esac
 
