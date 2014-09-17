@@ -1,13 +1,47 @@
 #!/bin/bash
 set -e
 
-CONTAINER_ID=$1
-
 if [ "$1" == "_description" ]; then
-  echo "Stop app"
+  echo "Stop and remove app"
   exit
 fi
 
-sudo docker stop $CONTAINER_ID > /dev/null
-sleep 1
-sudo docker rm $CONTAINER_ID > /dev/null
+usage_stop() {
+  cat <<-EOF
+
+  Usage: shipment stop [options]
+
+  Deploy options:
+
+    -i <container id>    stop and remove by container id
+    -u <host>            stop and remove by url
+    -h                   show this help
+
+EOF
+}
+
+while getopts ":i:u:h" OPTION "$@"; do
+  case $OPTION in
+    i) CONTAINER_ID=$OPTARG;;
+    u) URL=$OPTARG;;
+    h) HELP=1;;
+  esac
+done
+
+if [ "$HELP" == 1 ]; then
+  usage_running
+  exit
+fi
+
+if [[ -n "$CONTAINER_ID" ]]; then
+  sudo docker stop $CONTAINER_ID > /dev/null
+  sleep 1
+  sudo docker rm $CONTAINER_ID > /dev/null
+fi
+
+if [[ -n "$URL" ]]; then
+  ids=$(shipment running -u $URL)
+  for container_id in ${ids[@]}; do
+    shipment stop -i $container_id
+  done
+fi

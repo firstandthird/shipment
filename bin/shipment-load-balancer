@@ -23,7 +23,7 @@ case $CMD in
     ID=$(sudo docker ps | grep shipment-load-balancer | awk '{ print $1 }')
     if [ -n "$ID" ]; then
       log "Stopping load balancer"
-      shipment stop $ID
+      shipment stop -i $ID
     else
       log "Load balancer not running"
     fi
