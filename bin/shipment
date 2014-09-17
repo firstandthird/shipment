@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-VERSION="0.2.0"
+VERSION="0.3.0"
 BRIDGE_IP=172.17.42.1
 
 DIR=$(dirname $0)
