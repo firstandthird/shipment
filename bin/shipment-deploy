@@ -114,7 +114,7 @@ fi
 update_repo
 
 log "Getting running containers"
-RUNNING=$(shipment running -n $NAME -i)
+RUNNING=$(shipment running -u $HOST -i)
 
 build_container
 

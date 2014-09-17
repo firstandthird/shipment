@@ -16,15 +16,17 @@ usage_running() {
   Deploy options:
 
     -n <name>            name of app [some-cool-app]
+    -u <host>            get running urls by host
     -i                   just return ids of running containers
 
 EOF
 }
 
-while getopts ":in:h" OPTION "$@"; do
+while getopts ":in:u:h" OPTION "$@"; do
   case $OPTION in
     i) IDS=1;;
     n) NAME=$OPTARG;;
+    u) URL=$OPTARG;;
     h) HELP=1;;
   esac
 done
@@ -34,9 +36,19 @@ if [ "$HELP" == 1 ]; then
   exit
 fi
 
-if [ "$IDS" == 0 ]; then
-  printf "%-30s %-20s \n" "APP:TAG" "ID"
-  sudo docker ps | grep shipment/$NAME | awk '{ printf("%-30s %-20s \n", $2, $1) }'
-else
-  sudo docker ps | grep shipment/$NAME | awk '{ print $1 }'
+if [[ -n "$NAME" ]]; then
+  if [ "$IDS" == 0 ]; then
+    printf "%-30s %-20s \n" "APP:TAG" "ID"
+    sudo docker ps | grep shipment/$NAME | awk '{ printf("%-30s %-20s \n", $2, $1) }'
+  else
+    sudo docker ps | grep shipment/$NAME | awk '{ print $1 }'
+  fi
+fi
+
+if [[ -n "$URL" ]]; then
+  ips=$(redis lrange frontend:$URL 1 -1)
+  for ip in ${ips[@]}; do
+    port=$(echo $ip | sed 's/http.*://')
+    sudo docker ps | grep "0.0.0.0:$port" | awk '{ print $1 }'
+  done
 fi
