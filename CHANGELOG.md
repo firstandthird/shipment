@@ -1,4 +1,11 @@
 
+0.2.0 / 2014-09-17 
+==================
+
+  * give container 5 seconds to start up before adding to load balancer
+  * get running containers by host url rather than by name
+  * fixed updating git repo
+
 0.1.0 / 2014-09-15 
 ==================
 
