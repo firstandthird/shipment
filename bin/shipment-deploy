@@ -62,17 +62,17 @@ update_repo() {
 
   while [ -f "$LOCKFILE" ]; do
     log "Lock file exists, waiting for previous build to finish"
-    sleep 60
+    sleep 30
     ATTEMPTS=$(($TEST+1))
     if [[ "$MAXATTEMPTS" == "$ATTEMPTS" ]]; then
       echo "Reached max attemps, exiting"
       exit 0
     fi
   done
-  touch $LOCKFILE
-  git checkout -q $BRANCH
   log "Fetching latest code on $BRANCH"
-  git pull -q $ORIGIN $BRANCH
+  git fetch $ORIGIN
+  git checkout -q $ORIGIN/$BRANCH
+  touch $LOCKFILE
 
   COMMIT=$(git log --pretty=format:'%h' -n 1)
 }
