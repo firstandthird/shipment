@@ -10,13 +10,18 @@ CMD=$1
 shift
 case $CMD in
   start)
-    ID=$(sudo docker ps | grep shipment-load-balancer | awk '{ print $1 }')
-    if [ -n "$ID" ]; then
-      log "Load balancer already started"
-      exit
+    REDISID=$(sudo docker ps | grep shipment-redis | awk '{ print $1 }')
+    if [ -z "$REDISID" ]; then
+      log "Starting redis"
+      sudo docker run -d --restart=on-failure:5 --name shipment-redis redis
     fi
-    sudo docker run -d -p 80:80 -v /var/log/shipment:/var/log/supervisor -v /etc/shipment/:/usr/local/lib/node_modules/hipache/config/ --name shipment-load-balancer hipache
-    log "Load balancer started"
+    ID=$(sudo docker ps | grep shipment-load-balancer | awk '{ print $1 }')
+    if [ -z "$ID" ]; then
+      sudo docker run -d -p 80:80 --restart=on-failure:5 -v /var/log/shipment:/var/log/supervisor -v /etc/shipment/:/hipache/config/ --env HIPACHE_DRIVER="redis://\$REDIS_PORT_6379_TCP_ADDR:\$REDIS_PORT_6379_TCP_PORT" --link shipment-redis:redis --name shipment-load-balancer firstandthird/hipache
+      log "Load balancer started"
+    else
+      log "Load balancer already started"
+    fi
     exit
     ;;
   stop)
@@ -31,29 +36,12 @@ case $CMD in
     ;;
   redis)
     cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
-    sudo docker run -it --link shipment-load-balancer:redis --rm hipache sh -c "$cmd"
+    sudo docker run -it --link shipment-redis:redis --rm redis sh -c "$cmd"
     exit
     ;;
   restart)
-    log "Backing up redis"
-    hosts=$(redis "keys frontend*")
-    host_index=0
-    for host in ${hosts[@]}; do
-      bindings[$host_index]=$(redis lrange $host 1 -1)
-      host_index=$host_index+1
-    done
     shipment load-balancer stop
     shipment load-balancer start
-    sleep 5
-    log "Restoring redis"
-    host_index=0
-    for host in ${hosts[@]}; do
-      redis "rpush $host app"
-      for bind in ${bindings[$host_index][@]}; do
-        redis "rpush $host $bind"
-      done
-      host_index=$host_index+1
-    done
     exit
     ;;
 

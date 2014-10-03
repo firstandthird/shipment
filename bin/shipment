@@ -48,7 +48,7 @@ check_sudo() {
 
 redis() {
   cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
-  sudo docker run --link shipment-load-balancer:redis --rm hipache sh -c "$cmd"
+  sudo docker run --link shipment-redis:redis --rm redis sh -c "$cmd"
 }
 
 if [ "$#" == 0 ]; then
