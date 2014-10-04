@@ -1,4 +1,11 @@
 
+0.4.0 / 2014-10-04 
+==================
+
+  * on bootstrap, install docker and start load-balancer
+  * added logs command
+  * separate out redis to run as own container, use firstandthird/hipache
+
 0.3.0 / 2014-09-17 
 ==================
 
