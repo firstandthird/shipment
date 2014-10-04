@@ -1,0 +1,13 @@
+#!/bin/bash
+
+APP=$1
+
+echo "Showing logs for $APP"
+echo ""
+for id in $(docker ps | grep shipment/$APP | awk '{ print $1 }'); do 
+
+  echo "Container: $id"
+  echo "-------------------------------------"
+  docker logs $id
+  echo ""
+done;
