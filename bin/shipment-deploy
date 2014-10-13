@@ -130,7 +130,7 @@ sleep 5
 
 log "Killing running docker containers"
 for i in ${RUNNING[@]}; do
-  shipment unbind $HOST $i
+  shipment unbind -u $HOST -i $i
   shipment stop -i $i
 done
 
