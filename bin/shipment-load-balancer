@@ -17,7 +17,7 @@ case $CMD in
     fi
     ID=$(sudo docker ps | grep shipment-load-balancer | awk '{ print $1 }')
     if [ -z "$ID" ]; then
-      sudo docker run -d -p 80:80 --restart=on-failure:5 -v /var/log/shipment:/var/log/supervisor -v /etc/shipment/:/hipache/config/ --env HIPACHE_DRIVER="redis://\$REDIS_PORT_6379_TCP_ADDR:\$REDIS_PORT_6379_TCP_PORT" --link shipment-redis:redis --name shipment-load-balancer firstandthird/hipache
+      sudo docker run -d -p 80:80 --restart=on-failure:5 -v /var/log/shipment:/var/log/shipment -v /etc/shipment/:/hipache/config/ --env HIPACHE_DRIVER="redis://\$REDIS_PORT_6379_TCP_ADDR:\$REDIS_PORT_6379_TCP_PORT" --link shipment-redis:redis --name shipment-load-balancer firstandthird/hipache
       log "Load balancer started"
     else
       log "Load balancer already started"

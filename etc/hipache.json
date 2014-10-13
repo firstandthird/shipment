@@ -1,6 +1,6 @@
 {
   "server": {
-    "accessLog": "/var/log/supervisor/access.log",
+    "accessLog": "/var/log/shipment/access.log",
     "port": 80,
     "workers": 10,
     "maxSockets": 100,
