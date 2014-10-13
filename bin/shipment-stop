@@ -15,15 +15,17 @@ usage_stop() {
 
     -i <container id>    stop and remove by container id
     -u <host>            stop and remove by url
+    -n <name>            stop and remove by app name
     -h                   show this help
 
 EOF
 }
 
-while getopts ":i:u:h" OPTION "$@"; do
+while getopts ":i:u:n:h" OPTION "$@"; do
   case $OPTION in
     i) CONTAINER_ID=$OPTARG;;
     u) URL=$OPTARG;;
+    n) NAME=$OPTARG;;
     h) HELP=1;;
   esac
 done
@@ -41,6 +43,13 @@ fi
 
 if [[ -n "$URL" ]]; then
   ids=$(shipment running -u $URL)
+  for container_id in ${ids[@]}; do
+    shipment stop -i $container_id
+  done
+fi
+
+if [[ -n "$NAME" ]]; then
+  ids=$(shipment running -i -n $NAME)
   for container_id in ${ids[@]}; do
     shipment stop -i $container_id
   done
