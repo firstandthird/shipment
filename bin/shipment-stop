@@ -31,7 +31,7 @@ while getopts ":i:u:n:h" OPTION "$@"; do
 done
 
 if [ "$HELP" == 1 ]; then
-  usage_running
+  usage_stop
   exit
 fi
 
