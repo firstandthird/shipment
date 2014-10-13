@@ -123,7 +123,7 @@ log "Running $SCALE new container(s)"
 for i in $(seq 1 $SCALE); do
   CONTAINER_ID=$(shipment run -i -n $NAME -t $COMMIT -p $PORT -d "$DOCKERARGS")
   sleep 5
-  shipment bind $HOST $CONTAINER_ID
+  shipment bind -u $HOST -i $CONTAINER_ID
 done
 
 sleep 5

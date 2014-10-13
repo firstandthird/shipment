@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-HOST=$1
-CONTAINER_ID=$2
-PORT=${3:-5000}
+PORT=5000
 
 if [ "$1" == "_description" ]; then
   echo "Bind host to container"
@@ -13,15 +11,41 @@ fi
 usage_bind() {
   cat <<-EOF
 
-  Usage: shipment bind [HOST] [CONTAINER_ID] [PORT: default 5000]
+  Usage: shipment bind [options]
+
+  Deploy options:
+
+    Required:
+    -n <name>            name and tag [some-cool-app:a186acb]
+    -i <id>              container id
+    -u <url>             host url [app.com]
+    -p <port>            port [default: 5000]
 
 EOF
 }
 
-if [ -z "$HOST" ] || [ -z "$CONTAINER_ID" ]; then
+while getopts ":u:n:i:" OPTION "$@"; do
+  case $OPTION in
+    u) URL=$OPTARG;;
+    n) NAME=$OPTARG;;
+    i) CONTAINER_ID=$OPTARG;;
+    p) PORT=$OPTARG;;
+  esac
+done
+
+if [[ -z "$URL" ]]; then
   usage_bind
   exit 1
 fi
+
+if [[ -n "$NAME" ]]; then
+  ids=$(shipment running -i -n $NAME)
+  for container_id in ${ids[@]}; do
+    shipment bind -u $URL -i $container_id
+  done
+  exit 0
+fi
+
 
 container_port=$(sudo docker port $CONTAINER_ID $PORT | sed 's/0.0.0.0://')
 
@@ -30,7 +54,7 @@ if [ -z $container_port ]; then
   exit;
 fi
 
-redis_key="frontend:$HOST"
+redis_key="frontend:$URL"
 count=$(redis "llen $redis_key")
 
 if [[ "$count" == "0" ]]; then
@@ -39,5 +63,5 @@ fi
 
 url="http://$BRIDGE_IP:$container_port"
 
-log "Binding $url to $HOST"
+log "Binding $url to $URL"
 redis "rpush $redis_key $url" > /dev/null
