@@ -24,7 +24,7 @@ usage_bind() {
 EOF
 }
 
-while getopts ":u:n:i:" OPTION "$@"; do
+while getopts ":u:n:i:p:" OPTION "$@"; do
   case $OPTION in
     u) URL=$OPTARG;;
     n) NAME=$OPTARG;;
