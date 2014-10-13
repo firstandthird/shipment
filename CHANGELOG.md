@@ -1,4 +1,15 @@
 
+0.5.0 / 2014-10-13 
+==================
+
+  * updated unbind to pass in options, added support for named unbinding
+  * changed bind to pass in options, able to bind by name
+  * logs description
+  * logs runnable
+  * fixed stop usage
+  * stop containers by app name
+  * tweaked log location for load-balancer
+
 0.4.0 / 2014-10-04 
 ==================
 
