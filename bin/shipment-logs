@@ -2,6 +2,11 @@
 
 APP=$1
 
+if [ "$1" == "_description" ]; then
+  echo "Show logs for app"
+  exit
+fi
+
 echo "Showing logs for $APP"
 echo ""
 for id in $(docker ps | grep shipment/$APP | awk '{ print $1 }'); do 
