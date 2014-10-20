@@ -10,15 +10,16 @@ if [ "$1" == "_description" ]; then
 fi
 
 
-while getopts "in:p:d:t:" OPTION "$@"; do
+while getopts "in:p:d:t:u:" OPTION "$@"; do
   case $OPTION in
     n) NAME=$OPTARG;;
     t) TAG=$OPTARG;;
     p) PORT=$OPTARG;;
     d) DOCKERARGS=$OPTARG;;
+    u) URL=$OPTARG;;
     i) IDONLY=1;;
   esac
 done
 
-CONTAINER_ID=$(sudo docker run -d -p $PORT -e PORT=$PORT $DOCKERARGS shipment/$NAME:$TAG)
+CONTAINER_ID=$(sudo docker run -d -p $PORT -e VIRTUAL_HOST=$URL -e PORT=$PORT $DOCKERARGS shipment/$NAME:$TAG)
 echo $CONTAINER_ID

@@ -46,11 +46,6 @@ check_sudo() {
   fi
 }
 
-redis() {
-  cmd="exec redis-cli -h \"\$REDIS_PORT_6379_TCP_ADDR\" -p \"\$REDIS_PORT_6379_TCP_PORT\" $@"
-  sudo docker run --link shipment-redis:redis --rm redis sh -c "$cmd"
-}
-
 if [ "$#" == 0 ]; then
   usage
 fi

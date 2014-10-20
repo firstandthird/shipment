@@ -9,7 +9,6 @@ install:
 		cp -f $(BIN) $(DESTDIR)$(BINPREFIX); \
 	)
 	@mkdir -p /etc/shipment
-	@cp -f etc/hipache.json /etc/shipment/config_dev.json
 	@shipment load-balancer start
 
 uninstall:
