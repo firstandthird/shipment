@@ -12,6 +12,9 @@ install:
 	@shipment load-balancer start
 
 uninstall:
-	rm -f $(PREFIX)/bin/shipment
+	@$(foreach BIN, $(BINS), \
+		echo "removing $(notdir $(BIN))"; \
+		rm -f $(BIN) $(DESTDIR)$(BINPREFIX); \
+	)
 
 .PHONY: install uninstall
