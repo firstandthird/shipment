@@ -6,9 +6,15 @@ if [ "$1" == "_description" ]; then
   exit
 fi
 
+BRANCH="origin/master"
+if [[ -z "$1" ]]; then
+  BRANCH="origin/$1"
+fi
+
 log "updating shipment(1)"
 rm -fr /tmp/shipment
 git clone -q --depth 1 git@github.com:firstandthird/shipment.git /tmp/shipment
 cd /tmp/shipment
+git checkout $BRANCH
 make install
 log "updated $VERSION -> $(shipment --version)"
