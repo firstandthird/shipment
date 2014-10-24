@@ -9,7 +9,6 @@ install:
 		echo "... installing $(notdir $(BIN))"; \
 		cp -f $(BIN) $(DESTDIR)$(BINPREFIX); \
 	)
-	@mkdir -p $(SHIPMENTPATH)/apps
 	@mkdir -p $(SHIPMENTPATH)/nginx
 	@cp -f etc/nginx.tmpl $(SHIPMENTPATH)/nginx/
 	@shipment setup
