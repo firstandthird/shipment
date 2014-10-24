@@ -9,7 +9,7 @@ install:
 		cp -f $(BIN) $(DESTDIR)$(BINPREFIX); \
 	)
 	@mkdir -p /etc/shipment
-	@shipment load-balancer start
+	@cp -f etc/nginx.tmpl /etc/shipment/
 
 uninstall:
 	@$(foreach BIN, $(BINS), \

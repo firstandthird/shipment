@@ -10,23 +10,35 @@ CMD=$1
 shift
 case $CMD in
   start)
-    ID=$(sudo docker ps | grep shipment-load-balancer | awk '{ print $1 }')
-    if [ -z "$ID" ]; then
-      sudo docker run -d -p 80:80 --name shipment-load-balancer -v /var/run/docker.sock:/tmp/docker.sock jwilder/nginx-proxy
-      log "Load balancer started"
-    else
-      log "Load balancer already started"
+    id=$(sudo docker ps | grep shipment-nginx | awk '{ print $1 }')
+    if [ -z "$id" ]; then
+      log "Starting nginx"
+      sudo docker run -d -p 80:80 --name shipment-nginx -v /tmp/nginx:/etc/nginx/conf.d -t nginx
     fi
+    id=$(sudo docker ps | grep shipment-docker-gen | awk '{ print $1 }')
+    if [ -z "$id" ]; then
+      log "Starting docker-gen"
+      sudo docker run --volumes-from shipment-nginx \
+          -v /var/run/docker.sock:/tmp/docker.sock \
+          -v /etc/shipment:/etc/docker-gen/templates \
+          --name "shipment-docker-gen" \
+          -d jwilder/docker-gen:0.3.4 -notify-sighup shipment-nginx -watch --only-published /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    fi
+    log "Load Balancer running"
     exit
     ;;
   stop)
-    ID=$(sudo docker ps | grep shipment-load-balancer | awk '{ print $1 }')
-    if [ -n "$ID" ]; then
-      log "Stopping load balancer"
-      shipment stop -i $ID
-    else
-      log "Load balancer not running"
+    id=$(sudo docker ps | grep shipment-nginx | awk '{ print $1 }')
+    if [ -z "$id" ]; then
+      log "Stopping nginx"
+      shipment stop -i $id
     fi
+    id=$(sudo docker ps | grep shipment-docker-gen | awk '{ print $1 }')
+    if [ -z "$id" ]; then
+      log "Stopping docker-gen"
+      shipment stop -i $id
+    fi
+    log "Load Balancer stopped"
     exit
     ;;
   restart)
