@@ -24,17 +24,19 @@ main() {
       s) scale=$OPTARG;shift;shift;;
     esac
   done
-  local name=$@
+  local name=${@: -1}
 
   log "Getting running containers"
-  local running=$(shipment running -i $name)
+  local running=$(shipment running -i -a $name)
 
   log "Fetching latest..."
   shipment fetch $name
   log "Building..."
   shipment build $name
   log "Running new container..."
-  shipment run $name
+  for i in $(seq 1 $scale); do
+    shipment run $name
+  done
 
   sleep 3
 
@@ -42,8 +44,6 @@ main() {
   for i in ${running[@]}; do
     shipment stop -i $i
   done
-
-  shipment scale $name $scale
 
 
 }

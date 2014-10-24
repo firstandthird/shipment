@@ -12,6 +12,7 @@ install:
 	@mkdir -p $(SHIPMENTPATH)/apps
 	@mkdir -p $(SHIPMENTPATH)/nginx
 	@cp -f etc/nginx.tmpl $(SHIPMENTPATH)/nginx/
+	@shipment setup
 
 uninstall:
 	@$(foreach BIN, $(BINS), \

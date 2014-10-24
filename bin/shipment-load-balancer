@@ -11,6 +11,7 @@ shift
 case $CMD in
   start)
     id=$(sudo docker ps -a | grep shipment-nginx | awk '{ print $1 }')
+    mkdir -p /tmp/nginx
     if [ -z "$id" ]; then
       log "Starting nginx"
       sudo docker run -d -p 80:80 --name shipment-nginx -v /tmp/nginx:/etc/nginx/conf.d -t nginx

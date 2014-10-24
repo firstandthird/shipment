@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Start shipment"
+  exit
+fi
+
+main() {
+  shipment load-balancer start
+  local running=$(shipment running -i -a)
+  for id in $running; do
+    sudo docker start $id
+  done
+}
+
+main "$@"

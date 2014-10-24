@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Setup shipment - automatically run on install"
+  exit
+fi
+
+main() {
+
+  mkdir -p $SHIPMENTPATH/apps
+  cat<<EOF > /etc/init/shipment-start.conf
+description "Shipment Start Service"
+
+start on (started docker)
+
+script
+  sleep 2
+  sudo /usr/local/bin/shipment start
+end script
+EOF
+}
+
+main "$@"
