@@ -1,5 +1,6 @@
 PREFIX ?= /usr/local
 BINPREFIX ?= "$(PREFIX)/bin"
+SHIPMENTPATH ?= /var/shipment
 BINS = $(wildcard bin/shipment*)
 
 install:
@@ -8,13 +9,16 @@ install:
 		echo "... installing $(notdir $(BIN))"; \
 		cp -f $(BIN) $(DESTDIR)$(BINPREFIX); \
 	)
-	@mkdir -p /etc/shipment
-	@cp -f etc/nginx.tmpl /etc/shipment/
+	@mkdir -p $(SHIPMENTPATH)/apps
+	@mkdir -p $(SHIPMENTPATH)/nginx
+	@cp -f etc/nginx.tmpl $(SHIPMENTPATH)/nginx/
 
 uninstall:
 	@$(foreach BIN, $(BINS), \
 		echo "removing $(notdir $(BIN))"; \
 		rm -f $(BIN) $(DESTDIR)$(BINPREFIX); \
 	)
+	echo "removing $(SHIPMENTPATH)"
+	rm -f $(SHIPMENTPATH)
 
 .PHONY: install uninstall

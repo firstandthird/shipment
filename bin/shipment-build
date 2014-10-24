@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Build app"
+  exit
+fi
+
+if [ "$#" == 0 ]; then
+  echo "shipment build [app name]"
+  exit
+fi
+
+main() {
+  local name=$1
+  local commit=$(get_commit $name)
+  local container_name="shipment/$name"
+  local image_id=$(sudo docker images | grep ^$container_name\\s*$commit | awk '{ print $3 }')
+
+  if [[ -z "$image_id" ]]; then
+    sudo docker build -q -t $container_name:$commit .
+  fi
+}
+
+main "$@"

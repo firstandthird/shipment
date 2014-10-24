@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Scale App"
+  exit
+fi
+
+if [ "$#" == 0 ]; then
+  echo "shipment scape [app name] [count]"
+  exit
+fi
+
+main() {
+  local name=$1
+  local count=$2
+
+  local running=$(shipment running -c $name)
+
+  if [[ "$count" == "$running" ]]; then
+    log "Already running $count instances"
+    exit 0
+  fi
+
+  if [[ $count -gt $running ]]; then
+    for i in $(seq $(($running+1)) $count); do
+      log "Adding instance of $name"
+      shipment run $name
+    done
+  else
+    log "TODO: downscale"
+  fi
+}
+
+main "$@"
+

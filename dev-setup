@@ -3,9 +3,7 @@
 sudo apt-get update
 sudo apt-get install tmux htop
 curl -sSL https://get.docker.io/ubuntu/ | sudo sh
-sudo docker pull hipache
 
 sudo rm -r /usr/local/bin
 sudo ln -s /vagrant/bin /usr/local/bin
 sudo mkdir -p /etc/shipment
-sudo cp /vagrant/etc/hipache.json /etc/shipment/config_dev.json

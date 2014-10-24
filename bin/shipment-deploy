@@ -1,135 +1,51 @@
 #!/bin/bash
 set -e
 
-
-TMP=/tmp
-ORIGIN=origin
-BRIDGE_IP=172.17.42.1
-
-#GLOBAL VARS
-NAME=${SHIPMENT_NAME:-}
-REPO=${SHIPMENT_REPO:-}
-HOST=${SHIPMENT_HOST:-}
-BRANCH=${SHIPMENT_BRANCH:-master}
-ENVVAR=${SHIPMENT_ENV:-}
-PORT=${SHIPMENT_PORT:-5000}
-LINK=${SHIPMENT_LINK:-}
-SCALE=${SHIPMENT_SCALE:-1}
-CONTAINER_NAME="shipment/$NAME"
-ATTEMPTS=0
-MAXATTEMPS=10
-
 if [ "$1" == "_description" ]; then
   echo "Deploy app"
   exit
 fi
 
 usage_deploy() {
-  cat <<-EOF
-
-  Usage: shipment deploy [options]
-
-  Deploy options:
-
-    Required:
-    -n <name>            name of app [some-cool-app]
-    -r <repo>            repo [git@github.com:firstandthird/app]
-    -u <url>             host url [app.com]
-
-    Optional:
-    -b <branch>          branch [default: master]
-    -e <env>             env vars [NODE_ENV=production]
-    -p <port>            port [default: 5000]
-    -l <link:link>       link to other container [mongo:mongo]
-    -s <num>             number of containers to run [default: 1]
-
-EOF
+  echo "shipment deploy [options] [app name]"
 }
+
 if [ "$#" == 0 ]; then
   usage_deploy
   exit
 fi
 
-update_repo() {
-  LOCKFILE=$TMP/$NAME/shipment.lock
 
-  cd $TMP
-  if [[ ! -d $NAME ]]; then
-    log "Cloning $REPO"
-    git clone -q $REPO $NAME
-  fi
-  cd $NAME
+main() {
+  local scale=1
 
-  while [ -f "$LOCKFILE" ]; do
-    log "Lock file exists, waiting for previous build to finish"
-    sleep 30
-    ATTEMPTS=$(($TEST+1))
-    if [[ "$MAXATTEMPTS" == "$ATTEMPTS" ]]; then
-      echo "Reached max attemps, exiting"
-      exit 0
-    fi
+  while getopts ":s::" OPTION "$@"; do
+    case $OPTION in
+      s) scale=$OPTARG;shift;shift;;
+    esac
   done
-  log "Fetching latest code on $BRANCH"
-  git fetch $ORIGIN
-  git checkout -q $ORIGIN/$BRANCH
-  touch $LOCKFILE
+  local name=$@
 
-  COMMIT=$(git log --pretty=format:'%h' -n 1)
+  log "Getting running containers"
+  local running=$(shipment running -i $name)
+
+  log "Fetching latest..."
+  shipment fetch $name
+  log "Building..."
+  shipment build $name
+  log "Running new container..."
+  shipment run $name
+
+  sleep 3
+
+  log "Killing running docker containers..."
+  for i in ${running[@]}; do
+    shipment stop -i $i
+  done
+
+  shipment scale $name $scale
+
+
 }
 
-build_container() {
-
-  local image_id=$(sudo docker images | grep ^$CONTAINER_NAME\\s*$COMMIT | awk '{ print $3 }')
-
-  if [[ -z "$image_id" ]]; then
-    log "Building docker image"
-    sudo docker build -t $CONTAINER_NAME:$COMMIT .
-  else
-    log "Skipping build because same as last build"
-  fi
-}
-
-#set global vars
-while getopts ":n:r:u:b:d:p:s:" OPTION "$@"; do
-  case $OPTION in
-    n) NAME=$OPTARG;;
-    r) REPO=$OPTARG;;
-    u) HOST=$OPTARG;;
-    b) BRANCH=$OPTARG;;
-    p) PORT=$OPTARG;;
-    d) DOCKERARGS=$OPTARG;;
-    s) SCALE=$OPTARG;;
-  esac
-done
-
-CONTAINER_NAME="shipment/$NAME"
-
-
-# check for required args
-if [[ -z $NAME ]] || [[ -z $REPO ]] || [[ -z $HOST ]]; then
-  usage_deploy
-  exit 1
-fi
-
-update_repo
-
-log "Getting running containers"
-RUNNING=$(shipment running -n $NAME -i)
-
-build_container
-
-log "Running $SCALE new container(s)"
-
-for i in $(seq 1 $SCALE); do
-  CONTAINER_ID=$(shipment run -i -n $NAME -u $HOST -t $COMMIT -p $PORT -d "$DOCKERARGS")
-done
-
-sleep 5
-
-log "Killing running docker containers"
-for i in ${RUNNING[@]}; do
-  shipment stop -i $i
-done
-
-
-rm $LOCKFILE
+main "$@"

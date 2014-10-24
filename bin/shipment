@@ -3,6 +3,8 @@ set -e
 
 VERSION="0.5.2"
 BRIDGE_IP=172.17.42.1
+SHIPMENTPATH=/var/shipment
+APPSPATH=$SHIPMENTPATH/apps
 
 DIR=$(dirname $0)
 
@@ -44,6 +46,12 @@ check_sudo() {
     echo "Must run as root"
     exit
   fi
+}
+
+get_commit() {
+  local name=$1
+  cd $APPSPATH/$name
+  echo $(git log --pretty=format:'%h' -n 1)
 }
 
 if [ "$#" == 0 ]; then

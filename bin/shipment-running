@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-IDS=0
-
 if [ "$1" == "_description" ]; then
   echo "List running apps"
   exit
@@ -11,35 +9,38 @@ fi
 usage_running() {
   cat <<-EOF
 
-  Usage: shipment running [options]
+  Usage: shipment running [options] [name]
 
   Deploy options:
 
-    -n <name>            name of app [some-cool-app]
-    -u <host>            get running urls by host
     -i                   just return ids of running containers
 
 EOF
 }
 
-while getopts ":in:u:h" OPTION "$@"; do
-  case $OPTION in
-    i) IDS=1;;
-    n) NAME=$OPTARG;;
-    h) HELP=1;;
-  esac
-done
+main() {
+  local ids=0
+  local count=0
+  while getopts ":ic" OPTION "$@"; do
+    case $OPTION in
+      i) ids=1;shift;;
+      c) count=1;shift;;
+    esac
+  done
+  local name=$@
 
-if [ "$HELP" == 1 ]; then
-  usage_running
-  exit
-fi
-
-if [[ -n "$NAME" ]]; then
-  if [ "$IDS" == 0 ]; then
-    printf "%-30s %-20s \n" "APP:TAG" "ID"
-    sudo docker ps | grep shipment/$NAME | awk '{ printf("%-30s %-20s \n", $2, $1) }'
-  else
-    sudo docker ps | grep shipment/$NAME | awk '{ print $1 }'
+  if [[ "$count" == "1" ]]; then
+    sudo docker ps | grep shipment/$name | wc -l
+    exit 0
   fi
-fi
+
+  if [ "$ids" == 0 ]; then
+    printf "%-30s %-20s \n" "APP:TAG" "ID"
+    sudo docker ps | grep shipment/$name | awk '{ printf("%-30s %-20s \n", $2, $1) }'
+  else
+    sudo docker ps | grep shipment/$name | awk '{ print $1 }'
+  fi
+}
+
+main "$@"
+

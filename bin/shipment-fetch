@@ -1,0 +1,42 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Fetch latest from app repo"
+  exit
+fi
+
+if [ "$#" == 0 ]; then
+  echo "shipment fetch [app name]"
+  exit
+fi
+
+main() {
+  local name=$1
+  local attempts=0
+  local maxattemps=10
+  local lockfile=$APPSPATH/$name/shipment.lock
+
+  cd $APPSPATH
+  if [[ ! -d $name ]]; then
+    log "$name doesn't exist"
+    exit 1
+  fi
+  cd $name
+
+  while [ -f "$lockfile" ]; do
+    log "Lock file exists, waiting for previous build to finish"
+    sleep 30
+    attempts=$(($attempts+1))
+    if [[ "$maxattempts" == "$attempts" ]]; then
+      log "Reached max attemps, exiting"
+      exit 0
+    fi
+  done
+  touch $lockfile
+  git pull -q
+  rm $lockfile
+
+}
+
+main "$@"
