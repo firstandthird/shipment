@@ -1,4 +1,13 @@
 
+0.6.0 / 2014-10-25 
+==================
+
+  * setup and start command
+  * refactored into smaller modules, create command sets options once
+  * added readme
+  * split up nginx and docker-gen containers
+  * updated to use nginx-proxy instead of hipache
+
 0.5.2 / 2014-10-13 
 ==================
 
