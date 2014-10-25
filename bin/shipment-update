@@ -7,7 +7,7 @@ if [ "$1" == "_description" ]; then
 fi
 
 BRANCH="origin/master"
-if [[ -z "$1" ]]; then
+if [[ -n "$1" ]]; then
   BRANCH="origin/$1"
 fi
 
