@@ -17,6 +17,7 @@ main() {
   local container_name="shipment/$name"
   local image_id=$(sudo docker images | grep ^$container_name\\s*$commit | awk '{ print $3 }')
 
+  cd $APPSPATH/$name
   if [[ -z "$image_id" ]]; then
     sudo docker build -q -t $container_name:$commit .
   fi
