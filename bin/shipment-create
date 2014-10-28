@@ -20,6 +20,7 @@ usage_create() {
     Optional:
     -u <url>             host url [app.com]
     -b <branch>          branch [default: master]
+    -p <port>            internal port to expose [default: 5000]
     -d <args>            arguments to pass to docker, make sure to double quote
 EOF
 }
@@ -44,6 +45,7 @@ main() {
       u) url=$OPTARG;;
       b) branch=$OPTARG;;
       d) dockerargs=$OPTARG;;
+      p) port=$OPTARG;;
     esac
   done
 
@@ -65,6 +67,9 @@ main() {
   fi
   if [[ -n "$dockerargs" ]]; then
     echo "SHIPMENT_DOCKERARGS=\"$dockerargs\"" >> $config_file
+  fi
+  if [[ -n "$port" ]]; then
+    echo "SHIPMENT_PORT=\"$port\"" >> $config_file
   fi
 }
 
