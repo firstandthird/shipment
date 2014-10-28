@@ -9,6 +9,7 @@ fi
 main() {
 
   mkdir -p $SHIPMENTPATH/apps
+  mkdir -p $SHIPMENTPATH/ssl
   cat<<EOF > /etc/init/shipment-start.conf
 description "Shipment Start Service"
 
