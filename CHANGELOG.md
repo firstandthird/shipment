@@ -1,4 +1,14 @@
 
+0.7.0 / 2014-11-10 
+==================
+
+  * updated running to use an argument for name
+  * pull deps on setup
+  * ssl support
+  * added support for port on shipment-create
+  * fixed update command
+  * fixed shipment build
+
 0.6.0 / 2014-10-25 
 ==================
 
