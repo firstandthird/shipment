@@ -27,7 +27,7 @@ main() {
   local name=${@: -1}
 
   log "Getting running containers"
-  local running=$(shipment running -i -a $name)
+  local running=$(shipment running -i -a -n $name)
 
   log "Fetching latest..."
   shipment fetch $name

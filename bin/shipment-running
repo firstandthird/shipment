@@ -9,13 +9,14 @@ fi
 usage_running() {
   cat <<-EOF
 
-  Usage: shipment running [options] [name]
+  Usage: shipment running [options]
 
   Deploy options:
 
     -i                   just return ids of running containers
     -c                   return the number of containers
     -a                   return all containers, stopped or not
+    -n                   filter apps by [name]
 
 EOF
 }
@@ -24,14 +25,14 @@ main() {
   local ids=0
   local count=0
   local all=0
-  while getopts "ica" OPTION "$@"; do
+  while getopts "ican:" OPTION "$@"; do
     case $OPTION in
       i) ids=1;;
       c) count=1;;
       a) all=1;;
+      n) name=$OPTARG;;
     esac
   done
-  local name=${@: -1}
 
   if [[ "$count" == "1" ]]; then
     sudo docker ps | grep shipment/$name | wc -l
