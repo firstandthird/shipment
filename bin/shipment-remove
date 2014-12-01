@@ -20,7 +20,7 @@ main() {
   sleep 2
 
   log "Removing docker images"
-  docker rmi $(docker images | grep shipment/$name | awk '{ print $3 }')
+  docker images | grep shipment/$name\\s | awk '{ print $3 }' | xargs -r docker rmi
 
   log "Removing local repo"
   rm -rf $APPSPATH/$name
