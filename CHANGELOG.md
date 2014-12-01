@@ -1,4 +1,9 @@
 
+0.8.1 / 2014-12-01 
+==================
+
+  * fixed remove and running to get only exact matches
+
 0.8.0 / 2014-12-01 
 ==================
 
