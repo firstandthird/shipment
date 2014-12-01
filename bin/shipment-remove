@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Remove an app"
+  exit
+fi
+
+if [ "$#" == 0 ]; then
+  echo "shipment remove [app name]"
+  exit
+fi
+
+main() {
+  local name=$1
+
+  log "Stopping running instances"
+  shipment stop -n $name
+
+  sleep 2
+
+  log "Removing docker images"
+  docker rmi $(docker images | grep shipment/$name | awk '{ print $3 }')
+
+  log "Removing local repo"
+  rm -rf $APPSPATH/$name
+}
+
+main "$@"
