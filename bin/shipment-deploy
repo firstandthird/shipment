@@ -40,12 +40,19 @@ main() {
 
   sleep 3
 
-  log "Killing running docker containers..."
+  sudo shipment load-balancer update
+
+  log "Stopping running docker containers..."
   for i in ${running[@]}; do
-    shipment stop -i $i
+    sudo docker stop $i
   done
 
+  sudo shipment load-balancer update
 
+  log "Removing running docker containers..."
+  for i in ${running[@]}; do
+    sudo docker rm $i
+  done
 }
 
 main "$@"
