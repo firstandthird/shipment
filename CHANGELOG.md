@@ -1,4 +1,9 @@
 
+0.9.0 / 2014-12-02 
+==================
+
+  * manually update nginx template after deploy
+
 0.8.1 / 2014-12-01 
 ==================
 
