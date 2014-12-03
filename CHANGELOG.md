@@ -1,4 +1,10 @@
 
+0.9.1 / 2014-12-02 
+==================
+
+  * don't name docker-gen instance - it gets deleted anyways
+  * log message when updating load balancer config
+
 0.9.0 / 2014-12-02 
 ==================
 
