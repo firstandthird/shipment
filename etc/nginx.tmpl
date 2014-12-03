@@ -75,6 +75,7 @@ server {
 		proxy_buffering off;
 		error_log /proc/self/fd/2;
 		access_log /proc/self/fd/1;
+		client_max_body_size 5m;
 
 		location / {
 			proxy_pass http://{{ $host }};
