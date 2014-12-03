@@ -36,6 +36,7 @@ case $CMD in
     exit
     ;;
   update)
+    log "Updating load balancer config"
     sudo docker run --rm --volumes-from shipment-nginx \
         -v /var/run/docker.sock:/tmp/docker.sock \
         -v $SHIPMENTPATH/nginx:/etc/docker-gen/templates \
