@@ -30,7 +30,7 @@ main() {
       i) ids=1;;
       c) count=1;;
       a) all=1;;
-      n) name=$OPTARG;;
+      n) name="$OPTARG:";;
     esac
   done
 
@@ -45,9 +45,9 @@ main() {
 
   if [ "$ids" == 0 ]; then
     printf "%-30s %-20s \n" "APP:TAG" "ID"
-    sudo docker ps $all_param | grep "shipment/$name:" | awk '{ printf("%-30s %-20s \n", $2, $1) }'
+    sudo docker ps $all_param | grep "shipment/$name" | awk '{ printf("%-30s %-20s \n", $2, $1) }'
   else
-    sudo docker ps $all_param | grep shipment/$name: | awk '{ print $1 }'
+    sudo docker ps $all_param | grep "shipment/$name" | awk '{ print $1 }'
   fi
 }
 
