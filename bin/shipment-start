@@ -12,6 +12,7 @@ main() {
   for id in $running; do
     sudo docker start $id
   done
+  shipment load-balancer update
 }
 
 main "$@"
