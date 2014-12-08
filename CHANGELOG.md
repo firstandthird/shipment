@@ -1,4 +1,11 @@
 
+0.10.0 / 2014-12-07 
+==================
+
+  * update load balancer on start
+  * fixed running when not passing in name
+  * set max body size to 5m
+
 0.9.1 / 2014-12-02 
 ==================
 
