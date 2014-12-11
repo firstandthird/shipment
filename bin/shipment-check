@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Run a curl against the app to see if running"
+  exit
+fi
+
+usage_running() {
+  cat <<-EOF
+
+  Usage: shipment check [options]
+
+  Deploy options:
+
+    -i                   check a specific container id
+    -n                   check all apps by name
+
+EOF
+}
+
+main() {
+  local id=0
+  local name=""
+  while getopts "i:n:" OPTION "$@"; do
+    case $OPTION in
+      i) id=$OPTARG;;
+      n) name="$OPTARG";;
+    esac
+  done
+
+  if [[ -n "$name" ]]; then
+    log "Checking $name"
+    local running=$(shipment running -i -a -n $name)
+    for i in ${running[@]}; do
+      sudo shipment check -i $i
+    done
+    exit 0
+  fi
+  local ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+  #TODO: make this dynamic
+  local port=5000
+  log "Checking $id"
+  until $(curl --output /dev/null --silent --head --fail http://$ip:$port); do
+      printf '.'
+      sleep 1
+  done
+  log "$id is running"
+}
+
+main "$@"
+
