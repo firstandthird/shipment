@@ -1,4 +1,14 @@
 
+0.11.0 / 2014-12-10 
+==================
+
+  * upped checks to 60
+  * fetch - exit 1 if max attempts
+  * deploy - run check after all containers start
+  * check - added max number of attempts
+  * updated deploy to use check
+  * added check command to check if a container returns a response from curl
+
 0.10.0 / 2014-12-07 
 ==================
 
