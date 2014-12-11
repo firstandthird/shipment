@@ -42,7 +42,7 @@ main() {
   local port=5000
   log "Checking $id"
 
-  local maxattempts=20
+  local maxattempts=60
   local attempts=0
   until $(curl --output /dev/null --silent --head --fail http://$ip:$port); do
       printf '.'
