@@ -30,7 +30,7 @@ main() {
     attempts=$(($attempts+1))
     if [[ "$maxattempts" == "$attempts" ]]; then
       log "Reached max attemps, exiting"
-      exit 0
+      exit 1
     fi
   done
   touch $lockfile
