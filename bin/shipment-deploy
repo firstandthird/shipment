@@ -34,9 +34,14 @@ main() {
   log "Building..."
   shipment build $name
   log "Running new container..."
+  local new_ids=()
   for i in $(seq 1 $scale); do
     local id=$(shipment run $name)
-    shipment check -i $id
+    new_ids+=($id)
+  done
+
+  for i in ${new_ids[@]}; do
+    shipment check -i $i
   done
 
   sudo shipment load-balancer update
