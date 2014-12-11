@@ -35,10 +35,9 @@ main() {
   shipment build $name
   log "Running new container..."
   for i in $(seq 1 $scale); do
-    shipment run $name
+    local id=$(shipment run $name)
+    shipment check -i $id
   done
-
-  sleep 3
 
   sudo shipment load-balancer update
 
