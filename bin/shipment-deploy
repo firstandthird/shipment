@@ -40,8 +40,15 @@ main() {
     new_ids+=($id)
   done
 
+  #read config
+  local conf_file="$APPSPATH/$name/.shipment"
+  if [[ -e "$conf_file" ]]; then
+    source $conf_file
+  fi
+  local port=${SHIPMENT_PORT:-5000}
+
   for i in ${new_ids[@]}; do
-    shipment check -i $i
+    shipment check -i $i -p $port
   done
 
   sudo shipment load-balancer update

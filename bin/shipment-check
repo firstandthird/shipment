@@ -22,25 +22,31 @@ EOF
 main() {
   local id=0
   local name=""
-  while getopts "i:n:" OPTION "$@"; do
+  local port=5000
+  while getopts "i:n:p:" OPTION "$@"; do
     case $OPTION in
       i) id=$OPTARG;;
       n) name="$OPTARG";;
+      p) port="$OPTARG";;
     esac
   done
 
   if [[ -n "$name" ]]; then
     log "Checking $name"
     local running=$(shipment running -i -a -n $name)
+    #read config
+    local conf_file="$APPSPATH/$name/.shipment"
+    if [[ -e "$conf_file" ]]; then
+      source $conf_file
+    fi
+    local port=${SHIPMENT_PORT:-5000}
     for i in ${running[@]}; do
-      sudo shipment check -i $i
+      sudo shipment check -i $i -p $port
     done
     exit 0
   fi
   local ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
-  #TODO: make this dynamic
-  local port=5000
-  log "Checking $id"
+  log "Checking $id on port $port"
 
   local maxattempts=60
   local attempts=0
