@@ -1,4 +1,11 @@
 
+0.13.0 / 2015-02-11
+==================
+
+  * fixed copy on create help
+  * added option to skip site check
+
+
 0.12.0 / 2015-02-11
 ==================
 
