@@ -9,9 +9,9 @@ fi
 usage_create() {
   cat <<-EOF
 
-  Usage: shipment deploy [options]
+  Usage: shipment create [options]
 
-  Deploy options:
+  Create options:
 
     Required:
     -n <name>            name of app [some-cool-app]
