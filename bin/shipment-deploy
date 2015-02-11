@@ -17,11 +17,13 @@ fi
 
 
 main() {
-  local scale=1
+  local scale=1;
+  local nocheck=0;
 
-  while getopts ":s::" OPTION "$@"; do
+  while getopts ":cs:" OPTION "$@"; do
     case $OPTION in
-      s) scale=$OPTARG;shift;shift;;
+      s) scale=$OPTARG;;
+      c) nocheck=1;;
     esac
   done
   local name=${@: -1}
@@ -40,16 +42,18 @@ main() {
     new_ids+=($id)
   done
 
-  #read config
-  local conf_file="$APPSPATH/$name/.shipment"
-  if [[ -e "$conf_file" ]]; then
-    source $conf_file
-  fi
-  local port=${SHIPMENT_PORT:-5000}
+  if [[ "$nocheck" == 0 ]]; then
+    #read config
+    local conf_file="$APPSPATH/$name/.shipment"
+    if [[ -e "$conf_file" ]]; then
+      source $conf_file
+    fi
+    local port=${SHIPMENT_PORT:-5000}
 
-  for i in ${new_ids[@]}; do
-    shipment check -i $i -p $port
-  done
+    for i in ${new_ids[@]}; do
+      shipment check -i $i -p $port
+    done
+  fi
 
   sudo shipment load-balancer update
 
