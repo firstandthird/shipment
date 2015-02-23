@@ -11,7 +11,7 @@ main() {
   mkdir -p $SHIPMENTPATH/apps
   mkdir -p $SHIPMENTPATH/ssl
   sudo docker pull nginx
-  sudo docker pull jwilder/docker-gen:0.3.4
+  sudo docker pull jwilder/docker-gen:0.3.7
   cat<<EOF > /etc/init/shipment-start.conf
 description "Shipment Start Service"
 
