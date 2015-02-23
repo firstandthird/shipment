@@ -1,4 +1,10 @@
 
+0.14.0 / 2015-02-22
+==================
+
+  * updated nginx template to match nginx-proxy
+  * updated docker-gen version to 0.3.7
+
 0.13.0 / 2015-02-11
 ==================
 
