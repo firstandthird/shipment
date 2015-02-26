@@ -1,4 +1,11 @@
 
+0.15.0 / 2015-02-26
+==================
+
+  * add load-balancer tail function
+  * clean old docker images after deploying
+  * removed subdomain from Strict-Transport-Security
+
 0.14.0 / 2015-02-22
 ==================
 
