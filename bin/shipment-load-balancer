@@ -54,6 +54,13 @@ case $CMD in
     shipment load-balancer update
     exit
     ;;
+  tail)
+
+    nginx_id=$(docker inspect --format '{{.Id}}' shipment-nginx)
+
+    tail -f /var/lib/docker/containers/$nginx_id/$nginx_id-json.log
+    exit
+    ;;
 
 esac
 
