@@ -68,6 +68,8 @@ main() {
   for i in ${running[@]}; do
     sudo docker rm $i
   done
+
+  shipment clean -s 3 $name
 }
 
 main "$@"

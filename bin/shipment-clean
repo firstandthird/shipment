@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Clean old app images"
+  exit
+fi
+
+usage_clean() {
+  echo "shipment clean -s [skip count] [app name]"
+}
+
+if [ "$#" == 0 ]; then
+  usage_clean
+  exit
+fi
+
+
+main() {
+  local skip=0;
+
+  while getopts ":cs:" OPTION "$@"; do
+    case $OPTION in
+      s) skip=$(($OPTARG+1));;
+    esac
+  done
+  local name=${@: -1}
+
+  docker rmi $(docker images | grep "shipment/$name " | tail -n +$skip | awk '{print $3 }')
+}
+main "$@"
