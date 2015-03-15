@@ -12,6 +12,7 @@ case $CMD in
   start)
     id=$(sudo docker ps -a | grep shipment-nginx | awk '{ print $1 }')
     mkdir -p /tmp/nginx
+    shipment load-balancer copy-conf
     if [ -z "$id" ]; then
       log "Starting nginx"
       sudo docker run \
@@ -42,6 +43,7 @@ case $CMD in
     ;;
   update)
     log "Updating load balancer config"
+    shipment load-balancer copy-conf
     sudo docker run --rm --volumes-from shipment-nginx \
         -v /var/run/docker.sock:/tmp/docker.sock \
         -v $SHIPMENTPATH/nginx:/etc/docker-gen/templates \
@@ -62,5 +64,14 @@ case $CMD in
     exit
     ;;
 
+  copy-conf)
+    cp $SHIPMENTPATH/nginx/*.conf /tmp/nginx
+    exit
+    ;;
+  reload)
+    sudo docker kill -s HUP shipment-nginx > /dev/null
+    log "nginx reloaded"
+    exit
+    ;;
 esac
 
