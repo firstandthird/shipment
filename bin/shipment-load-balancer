@@ -18,7 +18,7 @@ case $CMD in
       sudo docker run \
         -d -p 80:80 -p 443:443 \
         --name shipment-nginx \
-        -v $SHIPMENTPATH/ssl:/etc/nginx/certs \
+        -v $SHIPMENTPATH/certs:/etc/nginx/certs \
         -v /tmp/nginx:/etc/nginx/conf.d \
         -t nginx:latest
     else

@@ -9,7 +9,7 @@ fi
 main() {
 
   mkdir -p $SHIPMENTPATH/apps
-  mkdir -p $SHIPMENTPATH/ssl
+  mkdir -p $SHIPMENTPATH/certs
   sudo docker pull nginx
   sudo docker pull jwilder/docker-gen:0.3.7
   cat<<EOF > /etc/init/shipment-start.conf
