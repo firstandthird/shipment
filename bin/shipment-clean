@@ -26,6 +26,7 @@ main() {
   done
   local name=${@: -1}
 
+  log "Cleaning $name images"
   docker rmi $(docker images | grep "shipment/$name " | tail -n +$skip | awk '{print $3 }')
 }
 main "$@"
