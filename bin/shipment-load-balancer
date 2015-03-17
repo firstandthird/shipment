@@ -65,7 +65,12 @@ case $CMD in
     ;;
 
   copy-conf)
-    cp $SHIPMENTPATH/nginx/*.conf /tmp/nginx
+    log "Copying conf files to nginx"
+    for f in "$SHIPMENTPATH/nginx/*.conf"; do
+      if [[ -f "$f" ]]; then
+        cp -v $f /tmp/nginx
+      fi
+    done
     exit
     ;;
   reload)
