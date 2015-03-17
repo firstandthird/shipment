@@ -57,10 +57,7 @@ case $CMD in
     exit
     ;;
   tail)
-
-    nginx_id=$(docker inspect --format '{{.Id}}' shipment-nginx)
-
-    tail -f /var/lib/docker/containers/$nginx_id/$nginx_id-json.log
+    docker logs --tail=100 -f shipment-nginx
     exit
     ;;
 
