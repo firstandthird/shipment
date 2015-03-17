@@ -1,4 +1,14 @@
 
+0.0.17 / 2015-03-17
+==================
+
+  * fixed load-balancer stop
+  * log when cleaning
+  * improve load-balancer tail
+  * check if conf exists before copying
+  * renamed ssl directory to certs
+
+
 0.16.0 / 2015-03-15
 ==================
 
