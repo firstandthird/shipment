@@ -29,13 +29,9 @@ case $CMD in
     ;;
   stop)
     id=$(sudo docker ps | grep shipment-nginx | awk '{ print $1 }')
-    if [ -z "$id" ]; then
+    echo $id
+    if [ -n "$id" ]; then
       log "Stopping nginx"
-      shipment stop -i $id
-    fi
-    id=$(sudo docker ps | grep shipment-docker-gen | awk '{ print $1 }')
-    if [ -z "$id" ]; then
-      log "Stopping docker-gen"
       shipment stop -i $id
     fi
     log "Load Balancer stopped"
