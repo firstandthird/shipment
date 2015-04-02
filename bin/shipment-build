@@ -18,6 +18,7 @@ main() {
   local image_id=$(sudo docker images | grep ^$container_name\\s*$commit | awk '{ print $3 }')
 
   cd $APPSPATH/$name
+  git submodule init -q && git submodule update --remote -q
   if [[ -z "$image_id" ]]; then
     sudo docker build -q -t $container_name:$commit .
   fi
