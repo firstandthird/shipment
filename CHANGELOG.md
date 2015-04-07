@@ -1,5 +1,11 @@
 
-0.0.17 / 2015-03-17
+0.18.0 / 2015-04-07
+==================
+
+  * Adding submodule support for building apps
+
+
+0.17.0 / 2015-03-17
 ==================
 
   * fixed load-balancer stop
