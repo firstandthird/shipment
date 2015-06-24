@@ -35,7 +35,7 @@ main() {
   done
   touch $lockfile
   git pull -q
-  git submodule init -q && git submodule update --remote -q
+  git submodule update --init --recursive -q
   rm $lockfile
 
 }
