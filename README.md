@@ -4,7 +4,7 @@
 
 ## Install
 ```
-curl https://raw.githubusercontent.com/firstandthird/shipment/master/bootstrap | sudo bash
+curl https://raw.githubusercontent.com/firstandthird/shipment/master/install.sh | sudo bash
 ```
 
 ## Commands
