@@ -9,68 +9,31 @@ fi
 usage_create() {
   cat <<-EOF
 
-  Usage: shipment create [options]
+  Usage: shipment create [options] [name]
 
   Create options:
 
     Required:
-    -n <name>            name of app [some-cool-app]
-    -r <repo>            repo [git@github.com:firstandthird/app]
+    -r,--repo <repo>              repo [git@github.com:firstandthird/app]
 
     Optional:
-    -u <url>             host url [app.com]
-    -b <branch>          branch [default: master]
-    -p <port>            internal port to expose [default: 5000]
-    -d <args>            arguments to pass to docker, make sure to double quote
+    -h,--host <host>              host name [example.com]
+    -p,--port <port>              internal port to expose [default: 5000]
+    -e,--env <key=value>          environment variables
+    -v,--volume <host:container>  docker volumes
+    -l,--link <app:app>           docker containers to link
 EOF
 }
 if [ "$#" == 0 ]; then
   usage_create
   exit
 fi
-
 main() {
-
   local name=""
-  local repo=""
-  local url=""
-  local branch=master
-  local dockerargs=""
-  local args=$@
+  readconfig $@
+  writeconfig $name $@
 
-  while getopts ":n:r::u:b:d:p:s:" OPTION "$@"; do
-    case $OPTION in
-      n) name=$OPTARG;;
-      r) repo=$OPTARG;;
-      u) url=$OPTARG;;
-      b) branch=$OPTARG;;
-      d) dockerargs=$OPTARG;;
-      p) port=$OPTARG;;
-    esac
-  done
-
-  cd $APPSPATH
-  if [[ ! -d $name ]]; then
-    git clone -q --depth 1 --branch $branch $repo $name
-    log "$name created"
-  else
-    log "$name already exists, updating config"
-  fi
-
-  local config_file=$APPSPATH/$name/.shipment
-  if [[ -e "$config_file" ]]; then
-    rm $config_file
-  fi
-  touch $config_file
-  if [[ -n "$url" ]]; then
-    echo "SHIPMENT_URL=\"$url\"" >> $config_file
-  fi
-  if [[ -n "$dockerargs" ]]; then
-    echo "SHIPMENT_DOCKERARGS=\"$dockerargs\"" >> $config_file
-  fi
-  if [[ -n "$port" ]]; then
-    echo "SHIPMENT_PORT=\"$port\"" >> $config_file
-  fi
+  log "$name created"
 }
 
 main "$@"

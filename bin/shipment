@@ -54,6 +54,63 @@ get_commit() {
   echo $(git log --pretty=format:'%h' -n 1)
 }
 
+readconfig() {
+  port=5000
+  env=()
+  volume=()
+  link=()
+  while (( "$#" )); do
+    case "$1" in
+      -r|--repo)
+        repo=$2
+        shift 2
+        ;;
+      -h|--host)
+        host=$2
+        shift 2
+        ;;
+      -e|--env)
+        env+=($2)
+        shift 2
+        ;;
+      -v|--volume)
+        volume+=($2)
+        shift 2
+        ;;
+      -l|--link)
+        link+=($2)
+        shift 2
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        log "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        params="$params $1"
+        shift
+        ;;
+    esac
+  done
+  # set positional arguments in their proper place
+  eval set -- "$params"
+  name=$params
+}
+
+writeconfig() {
+  if [[ ! -d $SHIPMENTPATH/config ]]; then
+    mkdir -p $SHIPMENTPATH/config
+  fi
+
+  local name=$1
+  shift
+  echo $@ > $SHIPMENTPATH/config/$name
+
+}
+
 if [ "$#" == 0 ]; then
   usage
 fi
