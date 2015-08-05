@@ -4,7 +4,9 @@ set -e
 VERSION="0.18.2"
 BRIDGE_IP=172.17.42.1
 SHIPMENTPATH=/var/shipment
+SHIPMENTCONFIG=$SHIPMENTPATH/config
 APPSPATH=$SHIPMENTPATH/apps
+SCRIPT=$0
 
 DIR=$(dirname $0)
 
@@ -55,6 +57,18 @@ get_commit() {
 }
 
 readconfig() {
+  local name=$1
+  if [[ ! -f $SHIPMENTCONFIG/$name ]]; then
+    log "$name config not found. Must call shipment create first"
+    exit 1
+  fi
+
+  local configstr=$(cat $SHIPMENTCONFIG/$name)
+
+  parseconfig $configstr
+}
+
+parseconfig() {
   port=5000
   env=()
   volume=()
@@ -67,6 +81,10 @@ readconfig() {
         ;;
       -h|--host)
         host=$2
+        shift 2
+        ;;
+      -p|--port)
+        port=$2
         shift 2
         ;;
       -e|--env)
@@ -90,24 +108,28 @@ readconfig() {
         exit 1
         ;;
       *) # preserve positional arguments
-        params="$params $1"
+        params+=($1)
         shift
         ;;
     esac
   done
   # set positional arguments in their proper place
   eval set -- "$params"
-  name=$params
+  if [[ ${#params[@]} == 0 ]]; then
+    log "Must pass in name of app"
+    exit 1
+  fi
+  name=${params[0]}
 }
 
 writeconfig() {
-  if [[ ! -d $SHIPMENTPATH/config ]]; then
-    mkdir -p $SHIPMENTPATH/config
+  if [[ ! -d $SHIPMENTCONFIG ]]; then
+    mkdir -p $SHIPMENTCONFIG
   fi
 
   local name=$1
   shift
-  echo $@ > $SHIPMENTPATH/config/$name
+  echo $@ > $SHIPMENTCONFIG/$name
 
 }
 

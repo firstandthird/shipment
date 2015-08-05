@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "Get info on the app"
+  exit
+fi
+
+usage_info() {
+  cat <<-EOF
+
+  Usage: shipment info [name]
+
+EOF
+}
+if [ "$#" == 0 ]; then
+  usage_info
+  exit
+fi
+main() {
+  local name="$1"
+  readconfig $1
+  log "Name: $name"
+  log "Repo: $repo"
+  log "Host: $host"
+  log "Port: $port"
+  log "Env: ${env[@]}"
+  log "Links: ${link[@]}"
+  log "Volumes: ${volume[@]}"
+}
+
+main "$@"

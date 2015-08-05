@@ -7,19 +7,36 @@ if [ "$1" == "_description" ]; then
 fi
 
 main() {
-  local name=$1
-  local commit=$(get_commit $name)
 
-  #read config
-  local conf_file="$APPSPATH/$name/.shipment"
-  if [[ -e "$conf_file" ]]; then
-    source $conf_file
-  fi
-  local url=$SHIPMENT_URL
-  local dockerargs=$SHIPMENT_DOCKERARGS
-  local port=${SHIPMENT_PORT:-5000}
+  local branch="master"
+  local params=()
+  while (( "$#" )); do
+    case "$1" in
+      -b|--branch)
+        branch=$2
+        shift 2
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        log "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        params+=($1)
+        shift
+        ;;
+    esac
+  done
+  # set positional arguments in their proper place
+  eval set -- "$params"
+  local name=${params[0]}
 
-  local container_id=$(sudo docker run -d -p $port -e VIRTUAL_HOST=$url -e PORT=$port $dockerargs shipment/$name:$commit)
+  readconfig $name
+
+  local container_id=$(docker run -d -p $port -e VIRTUAL_HOST=$host -e PORT=$port shipment/$name:$branch)
   echo $container_id
 }
 main "$@"

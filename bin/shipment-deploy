@@ -15,8 +15,74 @@ if [ "$#" == 0 ]; then
   exit
 fi
 
-
 main() {
+
+  local scale=1
+  local check=1
+  local branch="master"
+  local params=()
+  while (( "$#" )); do
+    case "$1" in
+      -s|--scale)
+        scale=$2
+        shift 2
+        ;;
+      --nocheck)
+        check=0
+        shift 2
+        ;;
+      -b|--branch)
+        branch=$2
+        shift 2
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        log "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        params+=($1)
+        shift
+        ;;
+    esac
+  done
+  # set positional arguments in their proper place
+  eval set -- "$params"
+  local name=${params[0]}
+
+  readconfig $name
+
+  #build
+  log "building $name ($branch)"
+  docker build -t "shipment/$name:$branch" $repo
+
+  #run
+  log "running new container(s)..."
+  local new_ids=()
+  for i in $(seq 1 $scale); do
+    local id=$(exec $SCRIPT run $name --branch $branch)
+    new_ids+=($id)
+  done
+
+  #check
+  if [[ "$check" == 1 ]]; then
+    for i in ${new_ids[@]}; do
+      shipment check --id $i --port $port
+    done
+  fi
+  #update loadbalancer
+  #stop old containers
+  #update loadbalancer
+  #remove old containers
+  #clean old images
+
+
+}
+
+mainold() {
   local scale=1;
   local nocheck=0;
 
