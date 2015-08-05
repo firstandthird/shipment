@@ -20,7 +20,7 @@ case $CMD in
         --name shipment-nginx \
         -v $SHIPMENTPATH/certs:/etc/nginx/certs \
         -v /tmp/nginx:/etc/nginx/conf.d \
-        -t nginx:latest
+        nginx:latest
     else
       sudo docker start $id
     fi
