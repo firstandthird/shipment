@@ -74,7 +74,7 @@ main() {
   #check
   if [[ "$check" == 1 ]]; then
     for i in ${new_ids[@]}; do
-      shipment check --id $i --port $port
+      exec $SCRIPT check $i --port $port
     done
   fi
   #update loadbalancer
