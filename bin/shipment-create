@@ -11,7 +11,7 @@ usage_create() {
 
   Usage: shipment create [options] [name]
 
-  Create options:
+  Options:
 
     Required:
     -r,--repo <repo>              repo [git@github.com:firstandthird/app]
@@ -22,6 +22,7 @@ usage_create() {
     -e,--env <key=value>          environment variables
     -v,--volume <host:container>  docker volumes
     -l,--link <app:app>           docker containers to link
+
 EOF
 }
 if [ "$#" == 0 ]; then
