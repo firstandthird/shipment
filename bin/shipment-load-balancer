@@ -20,7 +20,7 @@ case $CMD in
         --name shipment-nginx \
         -v $SHIPMENTPATH/certs:/etc/nginx/certs \
         -v /tmp/nginx:/etc/nginx/conf.d \
-        -t nginx:latest
+        nginx:1.9.3
     else
       sudo docker start $id
     fi
@@ -43,7 +43,8 @@ case $CMD in
     sudo docker run --rm --volumes-from shipment-nginx \
         -v /var/run/docker.sock:/tmp/docker.sock \
         -v $SHIPMENTPATH/nginx:/etc/docker-gen/templates \
-        jwilder/docker-gen:0.3.7 -notify-sighup shipment-nginx -only-published /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+        --name shipment-dockergen \
+        jwilder/docker-gen:0.4.0 -notify-sighup shipment-nginx -only-published /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
     exit
     ;;
   restart)

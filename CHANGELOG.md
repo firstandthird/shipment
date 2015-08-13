@@ -1,4 +1,12 @@
 
+0.19.0 / 2015-08-05
+==================
+
+  * fixed versions for nginx and docker-gen
+  * better name for docker-gen container
+  * remove -t from nginx container
+  * renamed bootstrap to install.sh
+
 0.18.2 / 2015-06-24
 ==================
 
