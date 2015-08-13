@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "_description" ]; then
+  echo "List apps"
+  exit
+fi
+
+main() {
+  log "Apps"
+  log "-----------"
+  for c in $SHIPMENTCONFIG/*; do
+    if [[ -f "${c}" ]]; then
+      log ${c/$SHIPMENTCONFIG\//}
+    fi
+  done
+}
+
+main "$@"
