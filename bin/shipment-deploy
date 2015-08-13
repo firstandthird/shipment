@@ -29,7 +29,7 @@ main() {
         ;;
       --nocheck)
         check=0
-        shift 2
+        shift 1
         ;;
       -b|--branch)
         branch=$2
