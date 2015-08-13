@@ -55,6 +55,10 @@ main() {
 
   readconfig $name
 
+  #get existing running containers
+  log "Getting running containers"
+  local running=$(exec $SCRIPT running --ids --all $name)
+
   #build
   log "building $name ($branch)"
   docker build -t "shipment/$name:$branch" $repo
