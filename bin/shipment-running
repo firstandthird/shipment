@@ -9,14 +9,14 @@ fi
 usage_running() {
   cat <<-EOF
 
-  Usage: shipment running [options]
+  Usage: shipment running [options] [name]
 
-  Deploy options:
+  Create options:
 
-    -i                   just return ids of running containers
-    -c                   return the number of containers
-    -a                   return all containers, stopped or not
-    -n                   filter apps by [name]
+    Optional:
+    -i,--ids                      only return ids
+    -c,--count                    only return number of running containers
+    -a,--all                      show stopped containers too
 
 EOF
 }
@@ -25,17 +25,49 @@ main() {
   local ids=0
   local count=0
   local all=0
-  while getopts "ican:" OPTION "$@"; do
-    case $OPTION in
-      i) ids=1;;
-      c) count=1;;
-      a) all=1;;
-      n) name="$OPTARG:";;
+  while (( "$#" )); do
+    case "$1" in
+      -i|--id|--ids)
+        ids=1
+        shift 1
+        ;;
+      -c|--count)
+        count=1
+        shift 1
+        ;;
+      -a|--all)
+        all=1
+        shift 1
+        ;;
+      --help)
+        usage_running
+        exit 0
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        log "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        params+=($1)
+        shift
+        ;;
     esac
   done
+  # set positional arguments in their proper place
+  eval set -- "$params"
+  local name=${params[0]}
+
+  if [[ -z "$name" ]]; then
+    log "app name is required"
+    exit 1
+  fi
 
   if [[ "$count" == "1" ]]; then
-    sudo docker ps | grep shipment/$name | wc -l
+    docker ps | grep shipment/$name | wc -l
     exit 0
   fi
 
@@ -45,9 +77,9 @@ main() {
 
   if [ "$ids" == 0 ]; then
     printf "%-30s %-20s \n" "APP:TAG" "ID"
-    sudo docker ps $all_param | grep "shipment/$name" | awk '{ printf("%-30s %-20s \n", $2, $1) }'
+    docker ps $all_param | grep "shipment/$name" | awk '{ printf("%-30s %-20s \n", $2, $1) }'
   else
-    sudo docker ps $all_param | grep "shipment/$name" | awk '{ print $1 }'
+    docker ps $all_param | grep "shipment/$name" | awk '{ print $1 }'
   fi
 }
 
