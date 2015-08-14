@@ -36,7 +36,27 @@ main() {
 
   readconfig $name
 
-  local container_id=$(docker run -d -p $port -e VIRTUAL_HOST=$host -e PORT=$port shipment/$name:$branch)
+  local dockerargs=""
+
+  if [[ -n "$link" ]]; then
+    for i in ${link[@]}; do
+      dockerargs+=" --link $i"
+    done
+  fi
+
+  if [[ -n "$env" ]]; then
+    for i in ${env[@]}; do
+      dockerargs+=" --env $i"
+    done
+  fi
+
+  if [[ -n "$volume" ]]; then
+    for i in ${volume[@]}; do
+      dockerargs+=" --volume $i"
+    done
+  fi
+
+  local container_id=$(docker run -d $dockerargs -p $port -e VIRTUAL_HOST=$host -e PORT=$port shipment/$name:$branch)
   echo $container_id
 }
 main "$@"
