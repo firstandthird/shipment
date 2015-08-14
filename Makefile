@@ -3,14 +3,12 @@ BINPREFIX ?= "$(PREFIX)/bin"
 SHIPMENTPATH ?= /var/shipment
 BINS = $(wildcard bin/shipment*)
 
-install:
+install: template
 	@echo "... installing bins to $(DESTDIR)$(BINPREFIX)"
 	@$(foreach BIN, $(BINS), \
 		echo "... installing $(notdir $(BIN))"; \
 		cp -f $(BIN) $(DESTDIR)$(BINPREFIX); \
 	)
-	@mkdir -p $(SHIPMENTPATH)/nginx
-	@cp -f etc/nginx.tmpl $(SHIPMENTPATH)/nginx/
 	@shipment setup
 
 uninstall:
@@ -21,4 +19,8 @@ uninstall:
 	echo "removing $(SHIPMENTPATH)"
 	rm -f $(SHIPMENTPATH)
 
-.PHONY: install uninstall
+template:
+	@mkdir -p $(SHIPMENTPATH)/nginx
+	@cp -f etc/nginx.tmpl $(SHIPMENTPATH)/nginx/
+
+.PHONY: install uninstall template
