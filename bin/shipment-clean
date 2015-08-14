@@ -19,12 +19,29 @@ fi
 main() {
   local skip=0;
 
-  while getopts ":cs:" OPTION "$@"; do
-    case $OPTION in
-      s) skip=$(($OPTARG+1));;
+  while (( "$#" )); do
+    case "$1" in
+      -s|--skip)
+        skip=$2
+        shift 2
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        log "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        params+=($1)
+        shift
+        ;;
     esac
   done
-  local name=${@: -1}
+  # set positional arguments in their proper place
+  eval set -- "$params"
+  local name=${params[0]}
 
   log "Cleaning $name images"
   docker rmi $(docker images | grep "shipment/$name " | tail -n +$skip | awk '{print $3 }')
