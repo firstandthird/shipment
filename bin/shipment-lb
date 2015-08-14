@@ -10,37 +10,38 @@ CMD=$1
 shift
 case $CMD in
   start)
-    id=$(sudo docker ps -a | grep shipment-nginx | awk '{ print $1 }')
-    mkdir -p /tmp/nginx
-    shipment load-balancer copy-conf
+    id=$(docker ps -a | grep shipment-nginx | awk '{ print $1 }')
+    mkdir -p /tmp/shipment-lb
     if [ -z "$id" ]; then
       log "Starting nginx"
-      sudo docker run \
+      docker run \
         -d -p 80:80 -p 443:443 \
         --name shipment-nginx \
         -v $SHIPMENTPATH/certs:/etc/nginx/certs \
-        -v /tmp/nginx:/etc/nginx/conf.d \
+        -v /tmp/shipment-lb:/etc/nginx/conf.d \
         nginx:1.9.3
     else
-      sudo docker start $id
+      docker start $id
     fi
     log "Load Balancer running"
+    exec $SCRIPT lb update
     exit
     ;;
   stop)
-    id=$(sudo docker ps | grep shipment-nginx | awk '{ print $1 }')
+    id=$(docker ps | grep shipment-nginx | awk '{ print $1 }')
     echo $id
     if [ -n "$id" ]; then
       log "Stopping nginx"
-      shipment stop -i $id
+      docker stop $id
+      docker rm $id
     fi
     log "Load Balancer stopped"
     exit
     ;;
   update)
+    (exec $SCRIPT lb copy-conf)
     log "Updating load balancer config"
-    shipment load-balancer copy-conf
-    sudo docker run --rm --volumes-from shipment-nginx \
+    docker run --rm --volumes-from shipment-nginx \
         -v /var/run/docker.sock:/tmp/docker.sock \
         -v $SHIPMENTPATH/nginx:/etc/docker-gen/templates \
         --name shipment-dockergen \
@@ -48,9 +49,9 @@ case $CMD in
     exit
     ;;
   restart)
-    shipment load-balancer stop
-    shipment load-balancer start
-    shipment load-balancer update
+    (exec $SCRIPT lb stop)
+    (exec $SCRIPT lb start)
+    (exec $SCRIPT lb update)
     exit
     ;;
   tail)
@@ -62,13 +63,13 @@ case $CMD in
     log "Copying conf files to nginx"
     for f in $SHIPMENTPATH/nginx/*.conf; do
       if [[ -f "$f" ]]; then
-        cp -v $f /tmp/nginx
+        cp -v $f /tmp/shipment-lb
       fi
     done
     exit
     ;;
   reload)
-    sudo docker kill -s HUP shipment-nginx > /dev/null
+    docker kill -s HUP shipment-nginx > /dev/null
     log "nginx reloaded"
     exit
     ;;
