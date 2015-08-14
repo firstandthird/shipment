@@ -20,7 +20,7 @@ usage() {
 EOF
 
 for f in $DIR/shipment-*; do
-  cmd=${f:24}
+  cmd=${f/$DIR\/shipment-/}
   printf "    %-20s %-50s\n" "$cmd" "$($f _description)"
 done
 echo
