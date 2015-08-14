@@ -13,7 +13,7 @@ fi
 
 log "updating shipment(1)"
 rm -fr /tmp/shipment
-git clone -q --depth 1 git@github.com:firstandthird/shipment.git /tmp/shipment
+git clone -q git://github.com/firstandthird/shipment.git /tmp/shipment
 cd /tmp/shipment
 git checkout $BRANCH
 make install
